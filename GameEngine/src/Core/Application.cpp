@@ -1,65 +1,71 @@
 #include "pch.h"
 #include "Application.h"
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
+#include "WinWindow.h"
+#include "Graphics/GraphicsContext.h"
 
 
 Application::Application()
 {
+	
+	if (!s_Instance)
+	{
+		s_Instance = this;
+	}
 }
 
 Application::~Application()
 {
+	s_Instance = nullptr;
 }
 
 void Application::Run()
 {
 	InitWindow();
-	InitVulkan();
 	MainLoop();
 	Terminate();
 }
 
+void Application::OnEvent(Event& event)
+{
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispath<WindowResizeEvent>(BIND_FUNCTION(Application::OnWindowResize));
+
+}
+
+bool Application::OnWindowResize(WindowResizeEvent& event)
+{
+	if (event.GetWidth() == 0 || event.GetHeight() == 0)
+	{
+		m_Minimized = true;
+		return false;
+	}
+
+	m_Minimized = false;
+
+	return false;
+}
+
 void Application::InitWindow()
 {
-	glfwInit();
-
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	m_Window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+	FWindowSpecification specs;
+	m_Window = std::make_unique<WinWindow>(specs);
+	m_Window->SetEventCallback(BIND_FUNCTION(Application::OnEvent));
 }
 
-void Application::InitVulkan()
-{
-	CreateVKInstance();
-}
 
 void Application::MainLoop()
 {
-	while (!glfwWindowShouldClose(m_Window))
+	if (m_Window)
 	{
-		glfwPollEvents();
+		m_Window->Update();
 	}
 }
 
 
-
 void Application::Terminate()
 {
-	glfwDestroyWindow(m_Window);
-
-	glfwTerminate();
+	
 }
 
-void Application::CreateVKInstance()
-{
-	VkApplicationInfo appInfo{};
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "Hello Triangle";
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.pEngineName = "No Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.apiVersion = VK_API_VERSION_1_0;
-}
+
+Application* Application::s_Instance = nullptr;

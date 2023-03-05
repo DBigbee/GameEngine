@@ -1,6 +1,8 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include "Events/Events.h"
+#include "Events/WindowEvents.h"
+
 
 struct GLFWwindow;
 
@@ -17,20 +19,26 @@ public:
 
 	void Run();
 
+	class WinWindow* GetWindow() { return m_Window.get(); }
+
+	static Application* GetApplication() { return s_Instance; }
+
+	void OnEvent(Event& event);
+
 private:
 
-	void InitWindow();
+	bool OnWindowResize(class WindowResizeEvent& event);
 
-	void InitVulkan();
+	void InitWindow();
 
 	void MainLoop();
 
 	void Terminate();
 
-	void CreateVKInstance();
+	std::unique_ptr<class WinWindow> m_Window;
 
-	GLFWwindow* m_Window = nullptr;
+	static Application* s_Instance;
 
-	VkInstance m_Instance;
+	bool m_Minimized = false;
 };
 
