@@ -33,17 +33,11 @@ public:
 
 private:
 
-	static std::string ReadFile(const std::string& filename);
-
 	void CreateGraphicsPipeline(const std::string& vertFilePath, const std::string& fragFilePath, const PipelineConfigInfo& configInfo);
-
-	VkShaderModule CreateShaderModule(const std::string& code);
 
 	class Device* m_Device = nullptr;
 
 	VkPipeline m_GraphicsPipeline = VK_NULL_HANDLE;
 
-	VkShaderModule m_VertShaderModule = VK_NULL_HANDLE;
-
-	VkShaderModule m_FragShaderModule = VK_NULL_HANDLE;
+	std::unique_ptr<class Shader> m_Shader;
 };
