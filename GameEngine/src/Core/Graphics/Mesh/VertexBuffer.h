@@ -1,28 +1,21 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
 #include "Vertex.h"
+#include "Buffer.h"
 
-class VertexBuffer final
+class VertexBuffer final : public Buffer
 {
 public:
 	VertexBuffer(class Device* device,  uint32_t size, const struct Vertex* vertices);
 
-	~VertexBuffer();
-
-	void Bind(VkCommandBuffer commandBuffer);
+	void Bind(VkCommandBuffer commandBuffer) override;
 
 	uint32_t GetSize() const { return m_Size; }
 
 private:
 
-	VkBuffer m_VertexBuffer;
-
-	VkDeviceMemory m_VertexBufferMemory;
-
+	
 	uint32_t m_Size;
-
-	class Device* m_Device = nullptr;
 };
 
 //class IndexBuffer final

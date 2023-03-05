@@ -38,6 +38,7 @@ VkResult SwapChain::SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &buffers[m_CurrentFrame];
 
+
 	VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;

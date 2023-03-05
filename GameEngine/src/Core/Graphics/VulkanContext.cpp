@@ -7,6 +7,24 @@
 #include "Vulkan/GraphicsPipeline.h"
 #include "Vulkan/SwapChain.h"
 
+void sierpinski(std::vector<Vertex>& vertices, int depth, glm::vec3 left, glm::vec3 right, glm::vec3 top)
+{
+	if (depth <= 0)
+	{
+		vertices.push_back({ top,  {0.0f, 0.0f, 1.0f} });
+		vertices.push_back({ right, {0.0f, 0.0f, 1.0f} });
+		vertices.push_back({ left, {0.0f, 0.0f, 1.0f} });
+	}
+	else
+	{
+		auto leftTop = 0.5f * (left + top);
+		auto rightTop = 0.5f * (right + top);
+		auto leftRight = 0.5f * (left + right);
+		sierpinski(vertices, depth - 1, left, leftRight, leftTop);
+		sierpinski(vertices, depth - 1, leftRight, right, rightTop);
+		sierpinski(vertices, depth - 1, leftTop, rightTop, top);
+	}
+}
 
 VulkanContext::VulkanContext(WinWindow* window)
 	:GraphicsContext(window), m_Window(window)
@@ -150,11 +168,18 @@ void VulkanContext::CreateVertexBuffer()
 {
 	std::vector<Vertex> vertices =
 	{
-		{{0.0f, -.5f, 0.0f},{1.0f, 1.0f, 1.0f}},
+		{{-0.5f, -.5f, 0.0f},{1.0f, 0.0f, 0.0f}},
+		{{0.5f, -.5f, 0.0f},{1.0f, 1.0f, 1.0f}},
 		{{0.5f, 0.5f, 0.0f},{0.0f, 1.0f, 0.0f}},
 		{{-.5f, 0.5f, 0.0f},{0.0f, 0.0f, 1.0f}}
 	};
-	m_Triangle = std::make_unique<Mesh>(m_Device.get(), vertices);
+
+	std::vector<uint32_t> indices =
+	{
+		0, 1, 2, 2, 3, 0
+	};
+	
+	m_Triangle = std::make_unique<Mesh>(m_Device.get(), vertices, indices);
 }
 
 void VulkanContext::CreatePipelineLayout()
