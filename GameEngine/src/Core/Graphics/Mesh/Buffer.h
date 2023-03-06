@@ -6,15 +6,17 @@ class Buffer
 {
 public:
 
-	Buffer(class Device* device, const void* srcdata, VkDeviceSize size, VkBufferUsageFlags usage);
+	Buffer(class Device* device);
 
 	virtual ~Buffer();
 
 	class Device* GetDevice() { return m_Device; }
 
-	virtual void Bind(VkCommandBuffer commandBuffer) = 0;
+	virtual void Bind(VkCommandBuffer commandBuffer) {}
 
-private:
+	VkBuffer GetBuffer() const { return m_Buffer; }
+
+protected:
 	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
 	void CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size);

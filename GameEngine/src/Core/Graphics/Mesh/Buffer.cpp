@@ -2,26 +2,10 @@
 #include "Buffer.h"
 #include "Core/Graphics/Vulkan/Device.h"
 
-Buffer::Buffer(Device* device, const void* srcdata, VkDeviceSize size, VkBufferUsageFlags usage)
+Buffer::Buffer(Device* device)
 	:m_Device(device)
 {
-	VkBuffer StagingBuffer;
-	VkDeviceMemory StagingBufferMemory;
-	CreateBuffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-		| VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, StagingBuffer, StagingBufferMemory);
-
-	void* data;
-	vkMapMemory(device->GetDevice(), StagingBufferMemory, 0, size, 0, &data);
-	memcpy(data, srcdata, (size_t)size);
-	vkUnmapMemory(device->GetDevice(), StagingBufferMemory);
-
-	CreateBuffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-		m_Buffer, m_BufferMemory);
-
-	CopyBuffer(StagingBuffer, m_Buffer, size);
-
-	vkDestroyBuffer(device->GetDevice(), StagingBuffer, nullptr);
-	vkFreeMemory(device->GetDevice(), StagingBufferMemory, nullptr);
+	
 }
 
 Buffer::~Buffer()

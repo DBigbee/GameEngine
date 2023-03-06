@@ -29,6 +29,8 @@ public:
 
 	VkResult AquireNextImage(uint32_t* imageIndex);
 
+	void ResetFence();
+
 	VkResult SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
 
 	uint32_t GetCurrentFrame() const { return m_CurrentFrame; }

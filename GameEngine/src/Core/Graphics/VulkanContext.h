@@ -39,13 +39,19 @@ private:
 
 	void CreateVertexBuffer();
 
+	void CreateUniformBuffers();
+
+	void UpdateUniformBuffer(uint32_t currentImage);
+
+	void CreateDescriptorPool();
+
+	void CreateDescriptorSet();
+
 private:
 
 	std::unique_ptr<class Device> m_Device;
 
-
 	std::unique_ptr<class Mesh> m_Triangle;
-
 
 	std::unique_ptr<class GraphicsPipeline> m_GraphicsPipeline;
 
@@ -53,7 +59,15 @@ private:
 
 	VkPipelineLayout m_PipelineLayout;
 
+	VkDescriptorPool m_DescriptorPool;
+
+	std::vector<VkDescriptorSet> m_DescriptorSets;
+
 	std::vector<VkCommandBuffer> m_CommandBuffers;
+
+	std::unique_ptr<class DescriptorSetLayout> m_DescriptorSetLayout;
+
+	std::vector< std::unique_ptr<class UniformBuffer>> m_UniformBuffers;
 
 	class WinWindow* m_Window;
 

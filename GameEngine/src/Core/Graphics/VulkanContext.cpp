@@ -6,6 +6,8 @@
 #include "Vulkan/Device.h"
 #include "Vulkan/GraphicsPipeline.h"
 #include "Vulkan/SwapChain.h"
+#include "Vulkan/DescriptorSetLayout.h"
+#include "Mesh/UniformBuffer.h"
 
 void sierpinski(std::vector<Vertex>& vertices, int depth, glm::vec3 left, glm::vec3 right, glm::vec3 top)
 {
@@ -30,17 +32,23 @@ VulkanContext::VulkanContext(WinWindow* window)
 	:GraphicsContext(window), m_Window(window)
 {	
 	m_Device = std::make_unique<Device>(window);
+	m_DescriptorSetLayout = std::make_unique<DescriptorSetLayout>(m_Device.get(), 0);
 
 	CreatePipelineLayout();
 	RecreateSwapChain();
 	CeateCommandBuffers();
 
 	CreateVertexBuffer();
+	CreateUniformBuffers();
+	CreateDescriptorPool();
+	CreateDescriptorSet();
 }
 
 VulkanContext::~VulkanContext()
 {
 	vkDestroyPipelineLayout(m_Device->GetDevice(), m_PipelineLayout, nullptr);
+
+	vkDestroyDescriptorPool(m_Device->GetDevice(), m_DescriptorPool, nullptr);
 }
 
 void VulkanContext::WaitIdle()
@@ -122,6 +130,8 @@ void VulkanContext::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t 
 	scissor.extent = m_SwapChain->GetExtents();
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+	auto currentFrame = m_SwapChain->GetCurrentFrame();
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[currentFrame], 0, nullptr);
 	m_Triangle->Draw(commandBuffer);
 
 	vkCmdEndRenderPass(commandBuffer);
@@ -147,7 +157,12 @@ void VulkanContext::DrawFrame()
 		throw std::runtime_error("Failed tp acquire swap chain image!");
 	}
 
+	
 	auto currentFrame = m_SwapChain->GetCurrentFrame();
+
+	UpdateUniformBuffer(currentFrame);
+
+	m_SwapChain->ResetFence();
 	vkResetCommandBuffer(m_CommandBuffers[currentFrame], 0);
 	RecordCommandBuffer(m_CommandBuffers[currentFrame], imageIndex);
 
@@ -182,12 +197,98 @@ void VulkanContext::CreateVertexBuffer()
 	m_Triangle = std::make_unique<Mesh>(m_Device.get(), vertices, indices);
 }
 
+void VulkanContext::CreateUniformBuffers()
+{
+	m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		m_UniformBuffers[i] = std::make_unique<UniformBuffer>(m_Device.get(), sizeof(FUniformBufferObject));
+	}
+}
+
+void VulkanContext::UpdateUniformBuffer(uint32_t currentImage)
+{
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	FUniformBufferObject ubo{};
+	ubo.m_Model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.m_View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	if(m_SwapChain)
+		ubo.m_Projection = glm::perspective(glm::radians(45.0f), m_SwapChain->GetExtents().width / (float)m_SwapChain->GetExtents().height, 0.1f, 10.0f);
+
+	//invert for vulkan
+	ubo.m_Projection[1][1] *= -1;
+
+	m_UniformBuffers[currentImage]->Update(sizeof(FUniformBufferObject), &ubo);
+}
+
+void VulkanContext::CreateDescriptorPool()
+{
+	VkDescriptorPoolSize poolSize{};
+	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSize.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+	VkDescriptorPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = 1;
+	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+	if (vkCreateDescriptorPool(m_Device->GetDevice(), &poolInfo, nullptr, &m_DescriptorPool) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create descriptor pool!");
+	}
+}
+
+void VulkanContext::CreateDescriptorSet()
+{
+	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_DescriptorSetLayout->GetSetLayout());
+
+	VkDescriptorSetAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = m_DescriptorPool;
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	allocInfo.pSetLayouts = layouts.data();
+
+	m_DescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+	if (vkAllocateDescriptorSets(m_Device->GetDevice(), &allocInfo, m_DescriptorSets.data()) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate descriptor sets!");
+	}
+	
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		VkDescriptorBufferInfo bufferInfo{};
+		bufferInfo.buffer = m_UniformBuffers[i]->GetBuffer();
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(FUniformBufferObject);
+
+		VkWriteDescriptorSet descriptorWrite{};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = m_DescriptorSets[i];
+		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pBufferInfo = &bufferInfo;
+		descriptorWrite.pImageInfo = nullptr;
+		descriptorWrite.pTexelBufferView = nullptr;
+
+		vkUpdateDescriptorSets(m_Device->GetDevice(), 1, &descriptorWrite, 0, nullptr);
+	}
+}
+
 void VulkanContext::CreatePipelineLayout()
 {
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 0;
-	pipelineLayoutInfo.pSetLayouts = nullptr;
+	pipelineLayoutInfo.setLayoutCount = 1;
+	pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout->GetSetLayout();
 	pipelineLayoutInfo.pushConstantRangeCount = 0;
 	pipelineLayoutInfo.pPushConstantRanges = nullptr;
 

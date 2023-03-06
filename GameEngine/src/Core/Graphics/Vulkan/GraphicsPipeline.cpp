@@ -40,7 +40,7 @@ PipelineConfigInfo GraphicsPipeline::CreateDefaultPipelineConfigInfo(uint32_t wi
 	configInfo.m_RasterizerInfo.polygonMode = VK_POLYGON_MODE_FILL;
 	configInfo.m_RasterizerInfo.lineWidth = 1.0f;
 	configInfo.m_RasterizerInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-	configInfo.m_RasterizerInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	configInfo.m_RasterizerInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	configInfo.m_RasterizerInfo.depthBiasEnable = VK_FALSE;
 	configInfo.m_RasterizerInfo.depthBiasConstantFactor = 0.0f; //optional
 	configInfo.m_RasterizerInfo.depthBiasClamp = 0.0f; //optional
@@ -73,7 +73,6 @@ PipelineConfigInfo GraphicsPipeline::CreateDefaultPipelineConfigInfo(uint32_t wi
 	configInfo.m_ColorBlendInfo.blendConstants[1] = 0.0f;
 	configInfo.m_ColorBlendInfo.blendConstants[2] = 0.0f;
 	configInfo.m_ColorBlendInfo.blendConstants[3] = 0.0f;
-
 
 	return configInfo;
 }

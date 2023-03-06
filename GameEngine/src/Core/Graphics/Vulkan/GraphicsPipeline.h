@@ -39,5 +39,6 @@ private:
 
 	VkPipeline m_GraphicsPipeline = VK_NULL_HANDLE;
 
+
 	std::unique_ptr<class Shader> m_Shader;
 };

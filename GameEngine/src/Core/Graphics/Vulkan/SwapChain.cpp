@@ -24,6 +24,11 @@ VkResult SwapChain::AquireNextImage(uint32_t* imageIndex)
 	return vkAcquireNextImageKHR(m_Device->GetDevice(), m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, imageIndex);
 }
 
+void SwapChain::ResetFence()
+{
+
+}
+
 VkResult SwapChain::SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex)
 {
 
