@@ -16,23 +16,11 @@ GraphicsPipeline::~GraphicsPipeline()
 	vkDestroyPipeline(m_Device->GetDevice(), m_GraphicsPipeline, nullptr);	
 }
 
-PipelineConfigInfo GraphicsPipeline::CreateDefaultPipelineConfigInfo(uint32_t width, uint32_t height)
+void GraphicsPipeline::CreateDefaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
 {
-
-	PipelineConfigInfo configInfo{};
 	configInfo.m_InputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 	configInfo.m_InputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	configInfo.m_InputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
-
-	configInfo.m_Viewport.x = 0.0f;
-	configInfo.m_Viewport.y = 0.0f;
-	configInfo.m_Viewport.width = (float)width;
-	configInfo.m_Viewport.height = (float)height;
-	configInfo.m_Viewport.minDepth = 0.0f;
-	configInfo.m_Viewport.maxDepth = 1.0f;
-
-	configInfo.m_Scissor.offset = { 0 ,0 };
-	configInfo.m_Scissor.extent = { width, height };
 
 	configInfo.m_RasterizerInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	configInfo.m_RasterizerInfo.depthClampEnable = VK_FALSE;
@@ -74,7 +62,11 @@ PipelineConfigInfo GraphicsPipeline::CreateDefaultPipelineConfigInfo(uint32_t wi
 	configInfo.m_ColorBlendInfo.blendConstants[2] = 0.0f;
 	configInfo.m_ColorBlendInfo.blendConstants[3] = 0.0f;
 
-	return configInfo;
+	configInfo.m_DynamicStatesEnabled = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+
+	configInfo.m_DynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	configInfo.m_DynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.m_DynamicStatesEnabled.size());
+	configInfo.m_DynamicStateInfo.pDynamicStates = configInfo.m_DynamicStatesEnabled.data();
 }
 
 void GraphicsPipeline::Bind(VkCommandBuffer commandBuffer)
@@ -120,15 +112,7 @@ void GraphicsPipeline::CreateGraphicsPipeline(const std::string& vertFilePath, c
 	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescription.size());
 	vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data(); //optional
 
-	std::vector<VkDynamicState> dynamicStates = {
-	VK_DYNAMIC_STATE_VIEWPORT,
-	VK_DYNAMIC_STATE_SCISSOR
-	};
-
-	VkPipelineDynamicStateCreateInfo dynamicStateInfo{};
-	dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-	dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-	dynamicStateInfo.pDynamicStates = dynamicStates.data();
+	
 
 
 	VkPipelineViewportStateCreateInfo viewportStateInfo{};
@@ -150,7 +134,7 @@ void GraphicsPipeline::CreateGraphicsPipeline(const std::string& vertFilePath, c
 	pipelineInfo.pMultisampleState = &configInfo.m_MultisamplingInfo;
 	pipelineInfo.pDepthStencilState = nullptr;
 	pipelineInfo.pColorBlendState = &configInfo.m_ColorBlendInfo;
-	pipelineInfo.pDynamicState = &dynamicStateInfo;
+	pipelineInfo.pDynamicState = &configInfo.m_DynamicStateInfo;
 	pipelineInfo.layout = configInfo.m_PipelineLayout;
 	pipelineInfo.renderPass = configInfo.m_RenderPass;
 	pipelineInfo.subpass = configInfo.m_Subpass;

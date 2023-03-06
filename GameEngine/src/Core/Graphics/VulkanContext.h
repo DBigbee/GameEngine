@@ -23,31 +23,10 @@ public:
 
 	void WaitIdle() override;
 
-private:
-
-	void CeateCommandBuffers();
-
-	void RecreateSwapChain();
-
-	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-
-	void FreeCommandBuffers();
-
 	void DrawFrame() override;
 
-	void CreatePipelineLayout();
-
-	void CreatePipeline();
-
+private:
 	void CreateVertexBuffer();
-
-	void CreateUniformBuffers();
-
-	void UpdateUniformBuffer(uint32_t currentImage);
-
-	void CreateDescriptorPool();
-
-	void CreateDescriptorSet();
 
 private:
 
@@ -55,22 +34,7 @@ private:
 
 	std::unique_ptr<class Mesh> m_Triangle;
 
-	std::unique_ptr<class GraphicsPipeline> m_GraphicsPipeline;
+	std::unique_ptr<class Renderer> m_Renderer;
 
-	std::unique_ptr<class SwapChain> m_SwapChain;
-
-	VkPipelineLayout m_PipelineLayout;
-
-	VkDescriptorPool m_DescriptorPool;
-
-	std::vector<VkDescriptorSet> m_DescriptorSets;
-
-	std::vector<VkCommandBuffer> m_CommandBuffers;
-
-	std::unique_ptr<class DescriptorSetLayout> m_DescriptorSetLayout;
-
-	std::vector< std::unique_ptr<class UniformBuffer>> m_UniformBuffers;
-
-	class WinWindow* m_Window;
-
+	std::unique_ptr<class SimpleRenderSystem> m_RenderSystem;
 };

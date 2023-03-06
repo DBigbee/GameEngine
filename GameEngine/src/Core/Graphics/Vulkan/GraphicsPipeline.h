@@ -4,15 +4,14 @@
 
 struct PipelineConfigInfo
 {
-	VkViewport m_Viewport;
-	VkRect2D m_Scissor;
-
 	VkPipelineInputAssemblyStateCreateInfo m_InputAssemblyInfo{};
 	VkPipelineRasterizationStateCreateInfo m_RasterizerInfo{};
 	VkPipelineColorBlendAttachmentState m_ColorBlendAttachment{};
 	VkPipelineColorBlendStateCreateInfo m_ColorBlendInfo{};
 	VkPipelineMultisampleStateCreateInfo m_MultisamplingInfo{};
 	VkPipelineDepthStencilStateCreateInfo m_DepthStencilInfo{};
+	std::vector<VkDynamicState> m_DynamicStatesEnabled;
+	VkPipelineDynamicStateCreateInfo m_DynamicStateInfo{};
 
 	VkPipelineLayout m_PipelineLayout = nullptr;
 	VkRenderPass m_RenderPass = nullptr;
@@ -29,7 +28,7 @@ public:
 
 	void Bind(VkCommandBuffer commandBuffer);
 
-	static PipelineConfigInfo CreateDefaultPipelineConfigInfo(uint32_t width, uint32_t height);
+	static void CreateDefaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
 
 private:
 
