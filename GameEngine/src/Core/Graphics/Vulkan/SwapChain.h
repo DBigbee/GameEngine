@@ -11,9 +11,9 @@ class SwapChain
 public:
 	
 	SwapChain(class Device* device, VkExtent2D extent);
+	SwapChain(class Device* device, VkExtent2D extent, std::shared_ptr<class SwapChain> previous);
 
 	~SwapChain();
-
 
 	VkExtent2D GetExtents() const { return m_Extent; }
 
@@ -34,7 +34,11 @@ public:
 	VkResult SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
 
 	uint32_t GetCurrentFrame() const { return m_CurrentFrame; }
+
+	size_t GetImageCount() const { return m_Images.size(); }
+
 protected:
+	void Init();
 
 	void CreateSwapChain();
 
@@ -55,6 +59,7 @@ protected:
 	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
 
 private:
+
 
 	VkSwapchainKHR m_SwapChain;
 
@@ -79,4 +84,6 @@ private:
 	uint32_t m_CurrentFrame = 0;
 
 	class Device* m_Device;
+
+	std::shared_ptr<class SwapChain> m_OldSwapChain = nullptr;
 };

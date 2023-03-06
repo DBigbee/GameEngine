@@ -31,6 +31,8 @@ private:
 
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
+	void FreeCommandBuffers();
+
 	void DrawFrame() override;
 
 	void CreatePipelineLayout();

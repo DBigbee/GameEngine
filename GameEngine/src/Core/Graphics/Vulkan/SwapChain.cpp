@@ -4,6 +4,20 @@
 SwapChain::SwapChain(Device* device, VkExtent2D extent)
 	:m_Device(device), m_Extent(extent)
 {
+	Init();
+}
+
+SwapChain::SwapChain(Device* device, VkExtent2D extent, std::shared_ptr<class SwapChain> previous)
+	:m_Device(device), m_Extent(extent) , m_OldSwapChain(previous)
+{
+	Init();
+
+	//clean up old swap chain
+	m_OldSwapChain = nullptr;
+}
+
+void SwapChain::Init()
+{
 	CreateSwapChain();
 	CreateImageViews();
 	CreateRenderPass();
@@ -119,7 +133,7 @@ void SwapChain::CreateSwapChain()
 
 	createInfo.presentMode = presentMode;
 	createInfo.clipped = VK_TRUE;
-	createInfo.oldSwapchain = VK_NULL_HANDLE;
+	createInfo.oldSwapchain = m_OldSwapChain == nullptr ? VK_NULL_HANDLE : m_OldSwapChain->GetSwapChain();
 
 	if (vkCreateSwapchainKHR(m_Device->GetDevice(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
 	{

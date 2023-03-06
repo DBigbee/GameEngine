@@ -74,6 +74,7 @@ void VulkanContext::CeateCommandBuffers()
 
 void VulkanContext::RecreateSwapChain()
 {
+
 	auto extent = m_Window->GetExtent();
 	while (extent.width == 0 || extent.height == 0)
 	{
@@ -83,7 +84,21 @@ void VulkanContext::RecreateSwapChain()
 
 	vkDeviceWaitIdle(m_Device->GetDevice());
 
-	m_SwapChain = std::make_unique<SwapChain>(m_Device.get(), extent);
+	if (m_SwapChain == nullptr)
+	{
+		m_SwapChain = std::make_unique<SwapChain>(m_Device.get(), extent);
+	}
+	else
+	{
+		m_SwapChain = std::make_unique<SwapChain>(m_Device.get(), extent, std::move(m_SwapChain));
+		if (m_SwapChain->GetImageCount() != m_CommandBuffers.size())
+		{
+			FreeCommandBuffers();
+			CeateCommandBuffers();
+		}
+	}
+
+	//check if renderpass compatable before creating new pipeline
 	CreatePipeline();
 }
 
@@ -140,6 +155,12 @@ void VulkanContext::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t 
 	{
 		throw std::runtime_error("Failed to record command buffers!");
 	}
+}
+
+void VulkanContext::FreeCommandBuffers()
+{
+	vkFreeCommandBuffers(m_Device->GetDevice(), m_Device->GetCommandPool(), static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
+	m_CommandBuffers.clear();
 }
 
 void VulkanContext::DrawFrame()
@@ -199,11 +220,11 @@ void VulkanContext::CreateVertexBuffer()
 
 void VulkanContext::CreateUniformBuffers()
 {
-	m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	m_UniformBuffers.resize((size_t)MAX_FRAMES_IN_FLIGHT);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		m_UniformBuffers[i] = std::make_unique<UniformBuffer>(m_Device.get(), sizeof(FUniformBufferObject));
+		m_UniformBuffers[i] = std::make_unique<UniformBuffer>(m_Device.get(), static_cast<uint32_t>(sizeof(FUniformBufferObject)));
 	}
 }
 
@@ -301,6 +322,9 @@ void VulkanContext::CreatePipelineLayout()
 
 void VulkanContext::CreatePipeline()
 {
+	assert(m_SwapChain != nullptr && "Cannot create pipeline before swap chain!");
+	assert(m_PipelineLayout != nullptr && "Cannot create pipeline before pipeline layout!");
+
 	auto extents = m_SwapChain->GetExtents();
 	auto pipelineConfig = GraphicsPipeline::CreateDefaultPipelineConfigInfo(extents.width, extents.height);
 	pipelineConfig.m_RenderPass = m_SwapChain->GetRenderPass();
