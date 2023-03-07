@@ -2,14 +2,12 @@
 
 #include "Device.h"
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
-
-
 
 class SwapChain
 {
 public:
-	
+	static const int MAX_FRAMES_IN_FLIGHT = 2;
+
 	SwapChain(class Device* device, VkExtent2D extent);
 	SwapChain(class Device* device, VkExtent2D extent, std::shared_ptr<class SwapChain> previous);
 

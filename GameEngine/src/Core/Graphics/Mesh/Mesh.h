@@ -14,6 +14,8 @@ public:
 
 	void Draw(VkCommandBuffer commandBuffer);
 
+	void Bind(VkCommandBuffer commandBuffer);
+
 private:
 
 	std::unique_ptr<class VertexBuffer> m_VertexBuffer;

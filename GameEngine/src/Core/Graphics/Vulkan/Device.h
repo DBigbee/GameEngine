@@ -52,7 +52,7 @@ private:
 public:
 	bool IsDeviceSuitable(VkPhysicalDevice device) const;
 
-	int RateDeviceSuitability(VkPhysicalDevice device) const;
+	int RateDeviceSuitability(VkPhysicalDevice device);
 
 	bool CheckValidationLayerSupport() const;
 
@@ -66,6 +66,12 @@ public:
 	bool CheckDeviceExtensionSupport(VkPhysicalDevice device) const;
 
 	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device) const;
+
+	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+
+	void CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size);
+
+	VkPhysicalDeviceProperties GetProperties() const { return m_Properties; }
 
 private:
 	void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
@@ -93,6 +99,8 @@ private:
 	VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 
 	class WinWindow* m_Window = nullptr;
+
+	VkPhysicalDeviceProperties m_Properties;
 
 	const std::vector<const char*> G_ValidationLayers = {"VK_LAYER_KHRONOS_validation"};
 

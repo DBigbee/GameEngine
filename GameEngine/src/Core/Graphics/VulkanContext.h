@@ -12,7 +12,6 @@
 
 #include "GraphicsContext.h"
 
-
 class VulkanContext : public GraphicsContext
 {
 public:
@@ -28,6 +27,10 @@ public:
 private:
 	void CreateVertexBuffer();
 
+	void CreateUniformBuffers();
+
+	void UpdateUniformBuffer(uint32_t currentImage);
+
 private:
 
 	std::unique_ptr<class Device> m_Device;
@@ -37,4 +40,13 @@ private:
 	std::unique_ptr<class Renderer> m_Renderer;
 
 	std::unique_ptr<class SimpleRenderSystem> m_RenderSystem;
+
+	std::vector< std::unique_ptr<class UniformBuffer>> m_UniformBuffers;
+
+	std::unique_ptr<class DescriptorSetLayout> m_DescriptorSetLayout{};
+
+	std::vector<VkDescriptorSet> m_DescriptorSets;
+
+	std::unique_ptr<class DescriptorPool> m_DescriptorPool{};
+
 };

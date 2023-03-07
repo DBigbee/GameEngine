@@ -20,8 +20,26 @@ Mesh::~Mesh()
 
 void Mesh::Draw(VkCommandBuffer commandBuffer)
 {
-	m_VertexBuffer->Bind(commandBuffer);
-	m_IndexBuffer->Bind(commandBuffer);
-	//vkCmdDraw(commandBuffer, m_VertexBuffer->GetSize(), 1, 0, 0);
-	vkCmdDrawIndexed(commandBuffer, m_IndexBuffer->GetSize(), 1, 0, 0, 0);
+	if (!m_IndexBuffer)
+	{
+		vkCmdDraw(commandBuffer, m_VertexBuffer->GetCount(), 1, 0, 0);
+	}
+	else
+	{
+		
+		vkCmdDrawIndexed(commandBuffer, m_IndexBuffer->GetCount(), 1, 0, 0, 0);
+	}
 }
+
+void Mesh::Bind(VkCommandBuffer commandBuffer)
+{
+	VkBuffer vertexBuffers[] = { m_VertexBuffer->GetBuffer()};
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+	if (m_IndexBuffer)
+	{
+		vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
+	}
+}
+

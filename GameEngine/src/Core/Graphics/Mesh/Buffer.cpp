@@ -2,78 +2,106 @@
 #include "Buffer.h"
 #include "Core/Graphics/Vulkan/Device.h"
 
-Buffer::Buffer(Device* device)
-	:m_Device(device)
+
+Buffer::Buffer(Device* device,  VkDeviceSize size, uint32_t count, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceSize minOffetAlignment)
+	:m_Buffer(nullptr), m_BufferMemory(nullptr), m_Device(device), m_Count(count), m_Size(size), m_UsageFlags(usage), m_PropertyFlags(properties)
 {
-	
+	m_AlignmentSize = GetAlignment(size, minOffetAlignment);
+	m_BufferSize = m_AlignmentSize * count;
+	device->CreateBuffer(m_BufferSize, usage, properties, m_Buffer, m_BufferMemory);
 }
 
 Buffer::~Buffer()
 {
+	UnMap();
 	vkDestroyBuffer(GetDevice()->GetDevice(), m_Buffer, nullptr);
 	vkFreeMemory(GetDevice()->GetDevice(), m_BufferMemory, nullptr);
 }
 
-void Buffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+VkDescriptorBufferInfo Buffer::GetDescriptorBufferInfo(VkDeviceSize size, VkDeviceSize offset)
 {
-	VkBufferCreateInfo bufferInfo{};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = size;
-	bufferInfo.usage = usage;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-	if (vkCreateBuffer(GetDevice()->GetDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+	return VkDescriptorBufferInfo
 	{
-		throw std::runtime_error("Failed to create Buffer");
-	}
-
-	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(GetDevice()->GetDevice(), buffer, &memRequirements);
-
-	VkMemoryAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = GetDevice()->FindMemoryType(memRequirements.memoryTypeBits, properties);
-
-	if (vkAllocateMemory(GetDevice()->GetDevice(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to allocate buffer memory!");
-	}
-
-	vkBindBufferMemory(GetDevice()->GetDevice(), buffer, bufferMemory, 0);
+		m_Buffer,
+		offset,
+		size
+	};
 }
 
-void Buffer::CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size)
+VkDescriptorBufferInfo Buffer::GetDescriptorBufferInfoForIndex(int index)
 {
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = GetDevice()->GetCommandPool();
-	allocInfo.commandBufferCount = 1;
+	return GetDescriptorBufferInfo(m_AlignmentSize, index * m_AlignmentSize);
+}
 
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(GetDevice()->GetDevice(), &allocInfo, &commandBuffer);
+VkResult Buffer::Map(VkDeviceSize size, VkDeviceSize offset)
+{
+	assert(m_Buffer && m_BufferMemory && "Called map on buffer before create!");
+	return vkMapMemory(m_Device->GetDevice(), m_BufferMemory, offset, size, 0, &m_MappedBuffers);
+}
 
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+void Buffer::UnMap()
+{
+	if (m_MappedBuffers)
+	{
+		vkUnmapMemory(m_Device->GetDevice(), m_BufferMemory);
+		m_MappedBuffers = nullptr;
+	}
+}
 
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
+{
+	if (size == VK_WHOLE_SIZE)
+	{
+		memcpy(m_MappedBuffers, data, m_BufferSize);
+	}
+	else
+	{
+		char* memOffset = (char*)m_MappedBuffers;
+		memOffset += offset;
+		memcpy(memOffset, data, size);
+	}
+	
+}
 
-	VkBufferCopy copyRegion{};
-	copyRegion.srcOffset = 0;
-	copyRegion.dstOffset = 0;
-	copyRegion.size = size;
-	vkCmdCopyBuffer(commandBuffer, src, dst, 1, &copyRegion);
+void Buffer::WriteToIndex(void* data, int index)
+{
+	WriteToBuffer(data, m_Size, index * m_AlignmentSize);
+}
 
-	vkEndCommandBuffer(commandBuffer);
+VkResult Buffer::Flush(VkDeviceSize size, VkDeviceSize offset)
+{
+	VkMappedMemoryRange mappedRange = {};
+	mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+	mappedRange.memory = m_BufferMemory;
+	mappedRange.offset = offset;
+	mappedRange.size = size;
+	return vkFlushMappedMemoryRanges(m_Device->GetDevice(), 1, &mappedRange);
+}
 
-	VkSubmitInfo submitInfo{};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
+VkResult Buffer::FlushIndex(int index)
+{
+	return Flush(m_AlignmentSize, index * m_AlignmentSize);
+}
 
-	vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(m_Device->GetGraphicsQueue());
-	vkFreeCommandBuffers(m_Device->GetDevice(), m_Device->GetCommandPool(), 1, &commandBuffer);
+VkResult Buffer::Invalidate(VkDeviceSize size, VkDeviceSize offset)
+{
+	VkMappedMemoryRange mappedRange = {};
+	mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+	mappedRange.memory = m_BufferMemory;
+	mappedRange.offset = offset;
+	mappedRange.size = size;
+	return vkInvalidateMappedMemoryRanges(m_Device->GetDevice(), 1, &mappedRange);
+}
+
+VkResult Buffer::InvalidateIndex(int index)
+{
+	return Invalidate(m_AlignmentSize, index * m_AlignmentSize);
+}
+
+VkDeviceSize Buffer::GetAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment)
+{
+	if (minOffsetAlignment > 0) {
+		return (instanceSize + minOffsetAlignment - 1) & ~(minOffsetAlignment - 1);
+	}
+	return instanceSize;
 }

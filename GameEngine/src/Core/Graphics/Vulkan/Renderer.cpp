@@ -146,7 +146,7 @@ void Renderer::EndSwapChainRenderPass(VkCommandBuffer commandBuffer)
 
 void Renderer::CeateCommandBuffers()
 {
-	m_CommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	m_CommandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
