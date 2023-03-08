@@ -15,7 +15,7 @@ Renderer::Renderer(Device* device, WinWindow* window)
 
 Renderer::~Renderer()
 {
-	FreeCommandBuffers();
+	
 }
 
 VkRenderPass Renderer::GetSwapChainRenderPass() const
@@ -123,10 +123,6 @@ void Renderer::CeateCommandBuffers()
 	m_CommandBuffer = std::make_unique<CommandBuffer>(m_Device, SwapChain::MAX_FRAMES_IN_FLIGHT, 0);
 }
 
-void Renderer::FreeCommandBuffers()
-{
-	m_CommandBuffer->Free();
-}
 
 void Renderer::RecreateSwapChain()
 {
@@ -148,7 +144,7 @@ void Renderer::RecreateSwapChain()
 		m_SwapChain = std::make_unique<SwapChain>(m_Device, extent, std::move(m_SwapChain));
 		if (m_SwapChain->GetImageCount() != m_CommandBuffer->GetCount())
 		{
-			FreeCommandBuffers();
+			m_CommandBuffer->Free();
 			CeateCommandBuffers();
 		}
 	}

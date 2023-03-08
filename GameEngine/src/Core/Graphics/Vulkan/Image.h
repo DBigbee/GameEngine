@@ -8,12 +8,13 @@ public:
 
 	Image() = default;
 
-	Image(class Device* device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
-		VkMemoryPropertyFlags properties);
+	Image(class Device* device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
 
 	~Image();
 
 	VkImage GetImage() const { return m_Image; }
+
+	void BindToMemory(VkMemoryPropertyFlags properties);
 
 private:
 
@@ -21,4 +22,5 @@ private:
 
 	VkImage m_Image = VK_NULL_HANDLE;
 	VkDeviceMemory m_ImageMemory = VK_NULL_HANDLE;
+
 };

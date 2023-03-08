@@ -14,8 +14,10 @@ public:
 	void End();
 
 	void Free();
+	
+	void Submit(int index = 0);
 
-	VkCommandBuffer GetAtIndex(int index);
+	VkCommandBuffer GetBuffer(int index = 0);
 
 	VkCommandBuffer GetCurrent() const { return m_CurrentCommandBuffer; }
 
@@ -25,7 +27,7 @@ public:
 
 private:
 
-	VkCommandBuffer m_CurrentCommandBuffer;
+	VkCommandBuffer m_CurrentCommandBuffer = VK_NULL_HANDLE;
 
 	std::vector<VkCommandBuffer> m_CommandBuffers;
 

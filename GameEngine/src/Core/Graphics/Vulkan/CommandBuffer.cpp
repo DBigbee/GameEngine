@@ -55,7 +55,21 @@ void CommandBuffer::Free()
 	m_CommandBuffers.clear();
 }
 
-VkCommandBuffer CommandBuffer::GetAtIndex(int index)
+void CommandBuffer::Submit(int index)
+{
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &m_CommandBuffers[index];
+
+
+	if (vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+		throw std::runtime_error("failed to submit draw command buffer!");
+	}
+	vkQueueWaitIdle(m_Device->GetGraphicsQueue());
+}
+
+VkCommandBuffer CommandBuffer::GetBuffer(int index)
 {
 	return m_CommandBuffers[index];
 }

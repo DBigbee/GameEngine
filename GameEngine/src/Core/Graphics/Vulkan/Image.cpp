@@ -2,7 +2,7 @@
 #include "Image.h"
 #include "Device.h"
 
-Image::Image(Device* device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+Image::Image(Device* device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage)
 	:m_Device(device)
 {
 	VkImageCreateInfo imageInfo{};
@@ -25,18 +25,21 @@ Image::Image(Device* device, uint32_t width, uint32_t height, VkFormat format, V
 	{
 		throw std::runtime_error("Failed to create image!");
 	}
-
-	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(device->GetDevice(), m_Image, &memRequirements);
-
-	device->AllocateMemory(memRequirements.size, memRequirements.memoryTypeBits, m_ImageMemory, properties);
-
-	vkBindImageMemory(device->GetDevice(), m_Image, m_ImageMemory, 0);
 }
 
 Image::~Image()
 {
 	vkDestroyImage(m_Device->GetDevice(), m_Image, nullptr);
 	vkFreeMemory(m_Device->GetDevice(), m_ImageMemory, nullptr);
+}
+
+void Image::BindToMemory(VkMemoryPropertyFlags properties)
+{
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements(m_Device->GetDevice(), m_Image, &memRequirements);
+
+	m_Device->AllocateMemory(memRequirements.size, memRequirements.memoryTypeBits, m_ImageMemory, properties);
+
+	vkBindImageMemory(m_Device->GetDevice(), m_Image, m_ImageMemory, 0);
 }
 

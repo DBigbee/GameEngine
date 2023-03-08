@@ -71,7 +71,7 @@ public:
 
 	void CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size);
 
-	void AllocateMemory(VkDeviceSize size, uint32_t filterType, VkDeviceMemory memory, VkMemoryPropertyFlags properties);
+	void AllocateMemory(VkDeviceSize size, uint32_t filterType, VkDeviceMemory& memory, VkMemoryPropertyFlags properties);
 
 	VkPhysicalDeviceProperties GetProperties() const { return m_Properties; }
 

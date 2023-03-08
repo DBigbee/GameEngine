@@ -34,16 +34,10 @@ public:
 	void BeginSwapChainRenderPass(VkCommandBuffer commandBuffer);
 	void EndSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
-	//void BeginSingleTimeCommand();
-	//void EndSingleTimeCommand();
-
 private:
 
 	void CeateCommandBuffers();
 
-	//void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-
-	void FreeCommandBuffers();
 
 	void RecreateSwapChain();
 

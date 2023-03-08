@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+class CommandBuffer;
+
 class Texture2D
 {
 public:
@@ -16,9 +18,12 @@ public:
 
 	int32_t GetChannels() const { return m_Channels; }
 
-	void CreatePipelineImageBarrier(VkCommandBuffer commandBuffer, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+	VkDescriptorImageInfo GetImageInfo() const;
 
-	void CopyToImage(VkCommandBuffer commandBuffer);
+private:
+	void TransitionImageLayout(CommandBuffer* commandBuffer, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+	void CopyBufferToImage(CommandBuffer* commandBuffer, VkBuffer buffer);
 
 private:
 
@@ -33,4 +38,8 @@ private:
 	std::string m_FilePath;
 
 	std::unique_ptr<class Image> m_Image = nullptr;
+
+	std::unique_ptr<class ImageView> m_ImageView = nullptr;
+
+	std::unique_ptr<class TextureSampler> m_Sampler = nullptr;
 };

@@ -45,17 +45,23 @@ VulkanContext::VulkanContext(WinWindow* window)
 	m_DescriptorPool = DescriptorPool::Builder(m_Device.get())
 		.SetMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
 		.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+		.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
 		.Build();
 
 	m_DescriptorSetLayout = DescriptorSetLayout::Builder(m_Device.get())
 		.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+		.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 		.Build();
+
+	m_Texture = std::make_unique<Texture2D>(m_Device.get(), "assets/textures/statue-g2725c3c85_1920.jpg");
 
 	for (int i = 0; i < m_DescriptorSets.size(); i++)
 	{
+		auto imageInfo = m_Texture->GetImageInfo();
 		auto bufferInfo = m_UniformBuffers[i]->GetDescriptorBufferInfo();
 		DescriptorWriter(m_DescriptorSetLayout.get(), m_DescriptorPool.get())
 			.WriteBuffer(0, &bufferInfo)
+			.WriteImage(1, &imageInfo)
 			.Build(m_DescriptorSets[i]);
 	}
 
@@ -66,7 +72,6 @@ VulkanContext::VulkanContext(WinWindow* window)
 	
 	CreateVertexBuffer();
 
-	//m_Texture = std::make_unique<Texture2D>(m_Device.get(), "assets/textures/statue-g2725c3c85_1920.jpg");
 
 }
 
@@ -87,8 +92,7 @@ void VulkanContext::DrawFrame()
 	if (auto commandBuffer = m_Renderer->BeginFrame())
 	{
 		m_Renderer->BeginSwapChainRenderPass(commandBuffer);
-		//m_Texture->CreatePipelineImageBarrier(commandBuffer, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		
+
 		//begin offscreen shadow pass
 		// render casting objects
 		// end offscreen shadow pass
@@ -114,10 +118,10 @@ void VulkanContext::CreateVertexBuffer()
 {
 	std::vector<Vertex> vertices =
 	{
-		{{-0.5f, -.5f, 0.0f},{1.0f, 0.0f, 0.0f}},
-		{{0.5f, -.5f, 0.0f},{1.0f, 1.0f, 1.0f}},
-		{{0.5f, 0.5f, 0.0f},{0.0f, 1.0f, 0.0f}},
-		{{-.5f, 0.5f, 0.0f},{0.0f, 0.0f, 1.0f}}
+		{{-0.5f, -.5f, 0.0f},	{1.0f, 0.0f, 0.0f}	,{1.0f, 0.0f}},
+		{{0.5f, -.5f, 0.0f},	{1.0f, 1.0f, 1.0f}	,{0.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.0f},	{0.0f, 1.0f, 0.0f}	,{0.0f, 1.0f}},
+		{{-.5f, 0.5f, 0.0f},	{0.0f, 0.0f, 1.0f}	,{1.0f, 1.0f}}
 	};
 
 	std::vector<uint32_t> indices =

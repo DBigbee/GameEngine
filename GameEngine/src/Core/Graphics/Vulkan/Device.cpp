@@ -8,7 +8,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBits
 	VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
 	if(messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-		std::cerr << "Validation Layer: " << pCallbackData->pMessageIdName << " : " << pCallbackData->pMessage << std::endl;
+		std::cerr << "Validation Layer: " << pCallbackData->pMessage << std::endl;
 
 	return VK_FALSE;
 }
@@ -261,6 +261,7 @@ void Device::CreateLogicalDevice()
 
 
 	VkPhysicalDeviceFeatures deviceFeatures{};
+	deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 	VkDeviceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -297,6 +298,9 @@ bool Device::IsDeviceSuitable(VkPhysicalDevice device) const
 
 	bool extensionsSupported = CheckDeviceExtensionSupport(device);
 
+	VkPhysicalDeviceFeatures supportedFeatures;
+	vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
 	bool swapChainAdequate = false;
 	if (extensionsSupported)
 	{
@@ -304,7 +308,7 @@ bool Device::IsDeviceSuitable(VkPhysicalDevice device) const
 		swapChainAdequate = !swapChainSupport.m_Formats.empty() && !swapChainSupport.m_PresentModes.empty();
 	}
 
-	return indices.IsComplete() && extensionsSupported && swapChainAdequate;
+	return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 
 }
 
@@ -428,7 +432,7 @@ void Device::CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size)
 	vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &commandBuffer);
 }
 
-void Device::AllocateMemory(VkDeviceSize size, uint32_t filterType, VkDeviceMemory memory, VkMemoryPropertyFlags properties)
+void Device::AllocateMemory(VkDeviceSize size, uint32_t filterType, VkDeviceMemory& memory, VkMemoryPropertyFlags properties)
 {
 	VkMemoryAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;

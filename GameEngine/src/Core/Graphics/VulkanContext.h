@@ -47,6 +47,12 @@ private:
 
 	std::unique_ptr<class DescriptorSetLayout> m_DescriptorSetLayout{};
 
+	std::unique_ptr<class DescriptorSetLayout> m_SamplerDescriptorSetLayout{};
+
+	std::vector<VkDescriptorSet> m_SamplerDescriptorSets;
+
+	std::unique_ptr<class DescriptorPool> m_SamplerDescriptorPool{};
+
 	std::vector<VkDescriptorSet> m_DescriptorSets;
 
 	std::unique_ptr<class DescriptorPool> m_DescriptorPool{};
