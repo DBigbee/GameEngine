@@ -5,11 +5,12 @@
 #include "Core/Graphics/Vulkan/Renderer.h"
 #include "Core/Graphics/Vulkan/SimpleRenderSystem.h"
 #include "Core/Graphics/Vulkan/Device.h"
-#include "Core/Graphics/Mesh/UniformBuffer.h"
+#include "Core/Graphics/Vulkan/UniformBuffer.h"
 #include "Core/Graphics/Vulkan/SwapChain.h"
 #include "Core/Graphics/Vulkan/Descriptors.h"
 #include "Core/Graphics/Vulkan/GraphicsPipeline.h"
 #include "Core/Graphics/Vulkan/UniformBufferObject.h"
+#include "Core/Graphics/Vulkan/Texture2D.h"
 
 void sierpinski(std::vector<Vertex>& vertices, int depth, glm::vec3 left, glm::vec3 right, glm::vec3 top)
 {
@@ -64,6 +65,9 @@ VulkanContext::VulkanContext(WinWindow* window)
 	
 	
 	CreateVertexBuffer();
+
+	//m_Texture = std::make_unique<Texture2D>(m_Device.get(), "assets/textures/statue-g2725c3c85_1920.jpg");
+
 }
 
 VulkanContext::~VulkanContext()
@@ -83,7 +87,8 @@ void VulkanContext::DrawFrame()
 	if (auto commandBuffer = m_Renderer->BeginFrame())
 	{
 		m_Renderer->BeginSwapChainRenderPass(commandBuffer);
-
+		//m_Texture->CreatePipelineImageBarrier(commandBuffer, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		
 		//begin offscreen shadow pass
 		// render casting objects
 		// end offscreen shadow pass

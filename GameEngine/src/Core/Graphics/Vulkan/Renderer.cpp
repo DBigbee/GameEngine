@@ -4,6 +4,7 @@
 #include "SwapChain.h"
 #include "Core/WinWindow.h"
 #include "Device.h"
+#include "CommandBuffer.h"
 
 Renderer::Renderer(Device* device, WinWindow* window)
 	:m_Device(device), m_Window(window)
@@ -25,12 +26,6 @@ VkRenderPass Renderer::GetSwapChainRenderPass() const
 VkExtent2D Renderer::GetSwapChainExtents() const
 {
 	return m_SwapChain->GetExtents();
-}
-
-VkCommandBuffer Renderer::GetCurrentCommandBuffer() const
-{
-	assert(m_IsFrameStarted && "Cannot get command buffer when frame not in progress");
-	return m_CommandBuffers[m_SwapChain->GetCurrentFrame()];
 }
 
 uint32_t Renderer::GetSwapChainCurrentFrame() const
@@ -55,19 +50,7 @@ VkCommandBuffer Renderer::BeginFrame()
 	}
 	m_IsFrameStarted = true;
 
-	auto commandBuffer = GetCurrentCommandBuffer();
-
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = 0;
-	beginInfo.pInheritanceInfo = nullptr;
-
-	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to begin recording commandbuffer!");
-	}
-
-
+	auto commandBuffer = m_CommandBuffer->Begin(m_SwapChain->GetCurrentFrame());
 	return commandBuffer;
 }
 
@@ -75,18 +58,9 @@ void Renderer::EndFrame()
 {
 	assert(m_IsFrameStarted && "Cant call end frame while already in progress!");
 
+	m_CommandBuffer->End();
 
-	auto commandBuffer = GetCurrentCommandBuffer();
-	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to record command buffers!");
-	}
-
-	//m_SwapChain->ResetFence();
-	//vkResetCommandBuffer(commandBuffer, 0);
-
-
-	auto result = m_SwapChain->SubmitCommandBuffers(m_CommandBuffers.data(), &m_CurrentFrameIndex);
+	auto result = m_SwapChain->SubmitCommandBuffers(m_CommandBuffer->GetBuffers().data(), &m_CurrentFrameIndex);
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window->WasWindowResized())
 	{
 		m_Window->ResetWindowResizedFlag();
@@ -103,7 +77,7 @@ void Renderer::EndFrame()
 void Renderer::BeginSwapChainRenderPass(VkCommandBuffer commandBuffer)
 {
 	assert(m_IsFrameStarted && "Cant call begin swap render pass while already in progress!");
-	assert(commandBuffer == GetCurrentCommandBuffer()  && "Cant begin render on a different frame!");
+	assert(commandBuffer == m_CommandBuffer->GetCurrent() && "Cant begin render on a different frame!");
 
 	VkRenderPassBeginInfo renderpassInfo{};
 	renderpassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -138,7 +112,7 @@ void Renderer::BeginSwapChainRenderPass(VkCommandBuffer commandBuffer)
 void Renderer::EndSwapChainRenderPass(VkCommandBuffer commandBuffer)
 {
 	assert(m_IsFrameStarted && "Cant call end swap render pass while already in progress!");
-	assert(commandBuffer == GetCurrentCommandBuffer() && "Cant end render pass on a different frame!");
+	assert(commandBuffer == m_CommandBuffer->GetCurrent() && "Cant end render pass on a different frame!");
 
 	vkCmdEndRenderPass(commandBuffer);
 
@@ -146,28 +120,12 @@ void Renderer::EndSwapChainRenderPass(VkCommandBuffer commandBuffer)
 
 void Renderer::CeateCommandBuffers()
 {
-	m_CommandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
-
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = m_Device->GetCommandPool();
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = (uint32_t)m_CommandBuffers.size();
-
-	if (vkAllocateCommandBuffers(m_Device->GetDevice(), &allocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create command buffers!");
-	}
-}
-
-void Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
-{
+	m_CommandBuffer = std::make_unique<CommandBuffer>(m_Device, SwapChain::MAX_FRAMES_IN_FLIGHT, 0);
 }
 
 void Renderer::FreeCommandBuffers()
 {
-	vkFreeCommandBuffers(m_Device->GetDevice(), m_Device->GetCommandPool(), static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
-	m_CommandBuffers.clear();
+	m_CommandBuffer->Free();
 }
 
 void Renderer::RecreateSwapChain()
@@ -188,7 +146,7 @@ void Renderer::RecreateSwapChain()
 	else
 	{
 		m_SwapChain = std::make_unique<SwapChain>(m_Device, extent, std::move(m_SwapChain));
-		if (m_SwapChain->GetImageCount() != m_CommandBuffers.size())
+		if (m_SwapChain->GetImageCount() != m_CommandBuffer->GetCount())
 		{
 			FreeCommandBuffers();
 			CeateCommandBuffers();

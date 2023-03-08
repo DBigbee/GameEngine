@@ -37,6 +37,8 @@ private:
 
 	std::unique_ptr<class Mesh> m_Triangle;
 
+	std::unique_ptr<class Texture2D> m_Texture;
+
 	std::unique_ptr<class Renderer> m_Renderer;
 
 	std::unique_ptr<class SimpleRenderSystem> m_RenderSystem;

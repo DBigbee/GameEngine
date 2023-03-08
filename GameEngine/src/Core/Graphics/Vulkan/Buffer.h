@@ -24,6 +24,7 @@ public:
 
 	void UnMap();
 
+
 	void WriteToBuffer(void* data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 
 	void WriteToIndex(void* data, int index);

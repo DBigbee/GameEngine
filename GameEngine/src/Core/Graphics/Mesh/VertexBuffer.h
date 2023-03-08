@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Vertex.h"
-#include "Buffer.h"
+#include "Core/Graphics/Vulkan/Buffer.h"
 
 class VertexBuffer final : public Buffer
 {

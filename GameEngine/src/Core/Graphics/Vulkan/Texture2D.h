@@ -1,10 +1,12 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
+
 class Texture2D
 {
 public:
 
-	Texture2D(const std::string& filePath);
+	Texture2D(class Device* device, const std::string& filePath);
 
 	virtual ~Texture2D();
 
@@ -13,6 +15,10 @@ public:
 	int32_t GetHeight() const { return m_Height; }
 
 	int32_t GetChannels() const { return m_Channels; }
+
+	void CreatePipelineImageBarrier(VkCommandBuffer commandBuffer, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+	void CopyToImage(VkCommandBuffer commandBuffer);
 
 private:
 
@@ -25,4 +31,6 @@ private:
 	uint32_t m_Channels = 0;
 
 	std::string m_FilePath;
+
+	std::unique_ptr<class Image> m_Image = nullptr;
 };

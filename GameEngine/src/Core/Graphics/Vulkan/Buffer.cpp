@@ -48,6 +48,7 @@ void Buffer::UnMap()
 	}
 }
 
+
 void Buffer::WriteToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
 {
 	if (size == VK_WHOLE_SIZE)

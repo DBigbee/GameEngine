@@ -25,7 +25,7 @@ public:
 
 	bool IsFrameInProgress() const { return m_IsFrameStarted; };
 
-	VkCommandBuffer GetCurrentCommandBuffer() const;
+	//VkCommandBuffer GetCurrentCommandBuffer() const;
 
 	uint32_t GetSwapChainCurrentFrame() const;
 
@@ -34,11 +34,14 @@ public:
 	void BeginSwapChainRenderPass(VkCommandBuffer commandBuffer);
 	void EndSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
+	//void BeginSingleTimeCommand();
+	//void EndSingleTimeCommand();
+
 private:
 
 	void CeateCommandBuffers();
 
-	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+	//void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	void FreeCommandBuffers();
 
@@ -48,7 +51,7 @@ private:
 
 	std::unique_ptr<class SwapChain> m_SwapChain;
 
-	std::vector<VkCommandBuffer> m_CommandBuffers;
+	std::unique_ptr<class CommandBuffer> m_CommandBuffer;
 
 	bool m_IsFrameStarted = false;
 

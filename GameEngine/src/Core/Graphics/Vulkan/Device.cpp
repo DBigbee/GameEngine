@@ -428,6 +428,19 @@ void Device::CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size)
 	vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &commandBuffer);
 }
 
+void Device::AllocateMemory(VkDeviceSize size, uint32_t filterType, VkDeviceMemory memory, VkMemoryPropertyFlags properties)
+{
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = size;
+	allocInfo.memoryTypeIndex = FindMemoryType(filterType, properties);
+
+	if (vkAllocateMemory(m_Device, &allocInfo, nullptr, &memory) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate image memory!");
+	}
+}
+
 QueueFamilityIndices Device::FindQueueFamilies(VkPhysicalDevice device) const
 {
 	QueueFamilityIndices indices{};

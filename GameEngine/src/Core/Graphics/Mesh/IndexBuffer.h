@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Buffer.h"
+#include "Core/Graphics/Vulkan/Buffer.h"
 
 class IndexBuffer : public Buffer
 {
