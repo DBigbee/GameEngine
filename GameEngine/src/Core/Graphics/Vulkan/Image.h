@@ -14,6 +14,8 @@ public:
 
 	VkImage GetImage() const { return m_Image; }
 
+	VkDeviceMemory GetMemory() const { return m_ImageMemory; }
+
 	void BindToMemory(VkMemoryPropertyFlags properties);
 
 private:
