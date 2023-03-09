@@ -2,11 +2,18 @@
 
 #include "vulkan/vulkan.h"
 
+struct ImageViewProperties
+{
+	VkFormat m_Format;
+	VkImageAspectFlags m_AspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+	VkImageViewType m_ViewType = VK_IMAGE_VIEW_TYPE_2D;
+};
+
 class ImageView
 {
 public:
 
-	ImageView(class Device* device, class Image* image, VkFormat format, VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D);
+	ImageView(class Device* device, class Image* image, const ImageViewProperties& properties = {});
 	virtual ~ImageView();
 
 	VkImageView GetImageView() const { return m_ImageView; }

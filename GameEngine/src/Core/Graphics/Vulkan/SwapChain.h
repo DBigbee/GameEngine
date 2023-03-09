@@ -48,6 +48,8 @@ protected:
 
 	void CreateSyncObjects();
 
+	void CreateDepthResources();
+
 	void CleanUp();
 
 	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
@@ -84,4 +86,8 @@ private:
 	class Device* m_Device;
 
 	std::shared_ptr<class SwapChain> m_OldSwapChain = nullptr;
+
+	//Depth
+	std::unique_ptr<class Image> m_DepthImage;
+	std::unique_ptr<class ImageView> m_DepthImageView;
 };

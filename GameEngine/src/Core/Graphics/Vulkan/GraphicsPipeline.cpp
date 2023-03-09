@@ -67,6 +67,17 @@ void GraphicsPipeline::CreateDefaultPipelineConfigInfo(PipelineConfigInfo& confi
 	configInfo.m_DynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 	configInfo.m_DynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.m_DynamicStatesEnabled.size());
 	configInfo.m_DynamicStateInfo.pDynamicStates = configInfo.m_DynamicStatesEnabled.data();
+
+	configInfo.m_DepthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	configInfo.m_DepthStencilInfo.depthTestEnable = VK_TRUE;
+	configInfo.m_DepthStencilInfo.depthWriteEnable = VK_TRUE;
+	configInfo.m_DepthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+	configInfo.m_DepthStencilInfo.depthBoundsTestEnable = VK_FALSE;
+	configInfo.m_DepthStencilInfo.minDepthBounds = 0.0f;
+	configInfo.m_DepthStencilInfo.maxDepthBounds = 1.0f;
+	configInfo.m_DepthStencilInfo.stencilTestEnable = VK_FALSE;
+	configInfo.m_DepthStencilInfo.front = {};
+	configInfo.m_DepthStencilInfo.back = {};
 }
 
 void GraphicsPipeline::Bind(VkCommandBuffer commandBuffer)
@@ -132,7 +143,7 @@ void GraphicsPipeline::CreateGraphicsPipeline(const std::string& vertFilePath, c
 	pipelineInfo.pViewportState = &viewportStateInfo;
 	pipelineInfo.pRasterizationState = &configInfo.m_RasterizerInfo;
 	pipelineInfo.pMultisampleState = &configInfo.m_MultisamplingInfo;
-	pipelineInfo.pDepthStencilState = nullptr;
+	pipelineInfo.pDepthStencilState = &configInfo.m_DepthStencilInfo;
 	pipelineInfo.pColorBlendState = &configInfo.m_ColorBlendInfo;
 	pipelineInfo.pDynamicState = &configInfo.m_DynamicStateInfo;
 	pipelineInfo.layout = configInfo.m_PipelineLayout;

@@ -73,6 +73,12 @@ public:
 
 	void AllocateMemory(VkDeviceSize size, uint32_t filterType, VkDeviceMemory& memory, VkMemoryPropertyFlags properties);
 
+	VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+
+	VkFormat FindDepthFormat() const;
+
+	bool HasStencilComponent(VkFormat format) const;
+
 	VkPhysicalDeviceProperties GetProperties() const { return m_Properties; }
 
 private:

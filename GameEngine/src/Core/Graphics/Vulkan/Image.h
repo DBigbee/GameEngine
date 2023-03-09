@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+class CommandBuffer;
+
 class Image
 {
 public:
@@ -18,11 +20,19 @@ public:
 
 	void BindToMemory(VkMemoryPropertyFlags properties);
 
-private:
+	void TransitionImageLayout(VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
+	void CopyBufferToImage(VkBuffer buffer);
+
+private:
 	class Device* m_Device = nullptr;
 
+	uint32_t m_Width;
+
+	uint32_t m_Height;
+
 	VkImage m_Image = VK_NULL_HANDLE;
+
 	VkDeviceMemory m_ImageMemory = VK_NULL_HANDLE;
 
 };

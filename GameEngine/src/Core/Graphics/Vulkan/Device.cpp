@@ -445,6 +445,35 @@ void Device::AllocateMemory(VkDeviceSize size, uint32_t filterType, VkDeviceMemo
 	}
 }
 
+
+VkFormat Device::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const
+{
+	for (auto format : candidates)
+	{
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(m_PhysicalDevice, format, &props);
+
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) { return format; }
+		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) { return format; }
+
+		throw std::runtime_error("Failed to find supported format");
+	}
+
+	return VkFormat{};
+}
+
+VkFormat Device::FindDepthFormat() const
+{
+	return FindSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL,
+		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+}
+
+bool Device::HasStencilComponent(VkFormat format) const
+{
+	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+}
+
+
 QueueFamilityIndices Device::FindQueueFamilies(VkPhysicalDevice device) const
 {
 	QueueFamilityIndices indices{};

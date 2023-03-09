@@ -20,10 +20,6 @@ public:
 
 	VkDescriptorImageInfo GetImageInfo() const;
 
-private:
-	void TransitionImageLayout(CommandBuffer* commandBuffer, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-
-	void CopyBufferToImage(CommandBuffer* commandBuffer, VkBuffer buffer);
 
 private:
 

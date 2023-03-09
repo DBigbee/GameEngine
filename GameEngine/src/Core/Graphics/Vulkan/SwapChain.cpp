@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "SwapChain.h"
+#include "Image.h"
+#include "ImageView.h"
 
 SwapChain::SwapChain(Device* device, VkExtent2D extent)
 	:m_Device(device), m_Extent(extent)
@@ -19,6 +21,7 @@ SwapChain::SwapChain(Device* device, VkExtent2D extent, std::shared_ptr<class Sw
 void SwapChain::Init()
 {
 	CreateSwapChain();
+	CreateDepthResources();
 	CreateImageViews();
 	CreateRenderPass();
 	CreateFramebuffers();
@@ -181,6 +184,20 @@ void SwapChain::CreateImageViews()
 
 void SwapChain::CreateRenderPass()
 {
+	VkAttachmentDescription depthAttachment{};
+	depthAttachment.format = m_Device->FindDepthFormat();
+	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depthAttachmentRef{};
+	depthAttachmentRef.attachment = 1;
+	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 	VkAttachmentDescription colorAttachment{};
 	colorAttachment.format = m_ImageFormat;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -203,13 +220,25 @@ void SwapChain::CreateRenderPass()
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
+	subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
+	VkSubpassDependency dependency{};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+	std::vector<VkAttachmentDescription> attachments{ colorAttachment, depthAttachment };
 	VkRenderPassCreateInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	renderPassInfo.pAttachments = attachments.data();
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
 
 	if (vkCreateRenderPass(m_Device->GetDevice(), &renderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS)
 	{
@@ -223,13 +252,13 @@ void SwapChain::CreateFramebuffers()
 
 	for (size_t i = 0; i < m_ImageViews.size(); i++)
 	{
-		VkImageView attachments[] = { m_ImageViews[i] };
+		std::array<VkImageView, 2> attachments = { m_ImageViews[i] , m_DepthImageView->GetImageView()};
 
 		VkFramebufferCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		createInfo.renderPass = m_RenderPass;
-		createInfo.attachmentCount = 1;
-		createInfo.pAttachments = attachments;
+		createInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		createInfo.pAttachments = attachments.data();
 		createInfo.width = m_Extent.width;
 		createInfo.height = m_Extent.height;
 		createInfo.layers = 1;
@@ -341,4 +370,15 @@ void SwapChain::CreateSyncObjects()
 			throw std::runtime_error("Failed to create semaphores!");
 		}
 	}
+}
+
+void SwapChain::CreateDepthResources()
+{
+	VkFormat depthFormat = m_Device->FindDepthFormat();
+	m_DepthImage = std::make_unique<Image>(m_Device, m_Extent.width, m_Extent.height, depthFormat,
+		VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+	m_DepthImage->BindToMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	m_DepthImageView = std::make_unique<ImageView>(m_Device, m_DepthImage.get(), ImageViewProperties{depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT});
+
+	m_DepthImage->TransitionImageLayout(depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 }
