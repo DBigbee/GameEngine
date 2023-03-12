@@ -35,7 +35,7 @@ private:
 
 	std::unique_ptr<class Device> m_Device;
 
-	std::unique_ptr<class Mesh> m_Triangle;
+	std::unique_ptr<class Model> m_Triangle;
 
 	std::unique_ptr<class Texture2D> m_Texture;
 

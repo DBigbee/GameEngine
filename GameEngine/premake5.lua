@@ -2,7 +2,7 @@ project "GameEngine"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "off"
+	staticruntime "on"
 	
 	targetdir("bin/" .. outputdir .. "/%{prj.name}")
 	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -31,18 +31,24 @@ project "GameEngine"
 		"%{IncludeDir.STBImage}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.GLM}",
-		"%{IncludeDir.Vulkan}"
+		"%{IncludeDir.ASSIMP}",
+		"%{IncludeDir.Vulkan}",
+		"%{IncludeDir.Entt}"
 	}
 	
 	links
 	{
 		"GLFW",
+		"Assimp",
 		"%{Library.Vulkan}"
 	}
 	
 	filter "files:src/main.cpp"
 	flags { "NoPCH" }
 
+	filter "system:windows"
+      systemversion "latest"
+	  
 	filter "configurations:Debug"
 		defines "GE_DEBUG"
 		runtime "Debug"

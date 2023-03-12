@@ -20,6 +20,7 @@ public:
 
 	VkDescriptorImageInfo GetImageInfo() const;
 
+	std::string GetFilePath() const { return m_FilePath; }
 
 private:
 

@@ -11,6 +11,7 @@
 #include "Core/Graphics/Vulkan/GraphicsPipeline.h"
 #include "Core/Graphics/Vulkan/UniformBufferObject.h"
 #include "Core/Graphics/Vulkan/Texture2D.h"
+#include "Core/Graphics/Mesh/Model.h"
 
 void sierpinski(std::vector<Vertex>& vertices, int depth, glm::vec3 left, glm::vec3 right, glm::vec3 top)
 {
@@ -135,7 +136,7 @@ void VulkanContext::CreateVertexBuffer()
 		4, 5, 6, 6, 7, 4
 	};
 	
-	m_Triangle = std::make_unique<Mesh>(m_Device.get(), vertices, indices);
+	m_Triangle = std::make_unique<Model>(m_Device.get(), "C:/Users/dariu/Downloads/post-apocalyptic-shotgun/source/99.fbx");
 }
 
 void VulkanContext::CreateUniformBuffers()
@@ -158,7 +159,7 @@ void VulkanContext::UpdateUniformBuffer(uint32_t currentImage)
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	FUniformBufferObject ubo{};
-	ubo.m_Model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.m_Model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(.005f, .005f, .005f));// glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.m_View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.m_Projection = glm::perspective(glm::radians(45.0f), extent.width / (float)extent.height, 0.1f, 10.0f);
 

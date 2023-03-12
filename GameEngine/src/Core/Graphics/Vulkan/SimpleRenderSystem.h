@@ -11,7 +11,7 @@ public:
 
 	~SimpleRenderSystem();
 
-	void RenderObjects(VkCommandBuffer commandBuffer, const std::vector<class Mesh*>& objects);
+	void RenderObjects(VkCommandBuffer commandBuffer, const std::vector<class Model*>& objects);
 
 	class GraphicsPipeline* GetPipeline() const { return m_GraphicsPipeline.get(); }
 

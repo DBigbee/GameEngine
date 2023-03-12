@@ -3,7 +3,7 @@
 #include "Device.h"
 #include "GraphicsPipeline.h"
 #include "Descriptors.h"
-#include "Core/Graphics/Mesh/Mesh.h"
+#include "Core/Graphics/Mesh/Model.h"
 
 SimpleRenderSystem::SimpleRenderSystem(Device* device, VkRenderPass renderpass, VkDescriptorSetLayout setLayout)
 	:m_Device(device)
@@ -19,13 +19,12 @@ SimpleRenderSystem::~SimpleRenderSystem()
 
 }
 
-void SimpleRenderSystem::RenderObjects(VkCommandBuffer commandBuffer,  const std::vector<class Mesh*>& objects)
+void SimpleRenderSystem::RenderObjects(VkCommandBuffer commandBuffer,  const std::vector<class Model*>& objects)
 {
 	m_GraphicsPipeline->Bind(commandBuffer);
 
 	for (auto object : objects)
 	{
-		object->Bind(commandBuffer);
 		object->Draw(commandBuffer);
 	}
 }

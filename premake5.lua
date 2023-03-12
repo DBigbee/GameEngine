@@ -20,6 +20,7 @@ workspace "GameEngine"
 	
 	group "Dependencies"
 		include "GameEngine/vendor/GLFW"
+		include "GameEngine/vendor/Assimp"
 	group ""
 	
 	include "GameEngine"
