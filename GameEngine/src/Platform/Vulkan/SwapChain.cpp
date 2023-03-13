@@ -30,6 +30,7 @@ namespace GE
 	void SwapChain::Init()
 	{
 		CreateSwapChain();
+		CreateColorResources();
 		CreateDepthResources();
 		CreateImageViews();
 		CreateRenderPass();
@@ -198,9 +199,10 @@ namespace GE
 
 	void SwapChain::CreateRenderPass()
 	{
+		auto sampleCount = m_Device->GetSampleCount();
 		VkAttachmentDescription depthAttachment{};
 		depthAttachment.format = m_Device->FindDepthFormat();
-		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.samples = sampleCount;
 		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -214,7 +216,7 @@ namespace GE
 
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = m_ImageFormat;
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.samples = sampleCount;
 
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; //store to memory to be read later
@@ -223,7 +225,21 @@ namespace GE
 		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentDescription colorAttachmentResolve{};
+		colorAttachmentResolve.format = m_ImageFormat;
+		colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		VkAttachmentReference colorAttachmentResolveRef{};
+		colorAttachmentResolveRef.attachment = 2;
+		colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 		//Subpass
 		VkAttachmentReference colorAttachmentRef{};
@@ -231,6 +247,7 @@ namespace GE
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 		VkSubpassDescription subpass{};
+		subpass.pResolveAttachments = &colorAttachmentResolveRef;
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
@@ -244,7 +261,7 @@ namespace GE
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-		std::vector<VkAttachmentDescription> attachments{ colorAttachment, depthAttachment };
+		std::vector<VkAttachmentDescription> attachments{ colorAttachment, depthAttachment, colorAttachmentResolve };
 		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
@@ -266,7 +283,7 @@ namespace GE
 
 		for (size_t i = 0; i < m_ImageViews.size(); i++)
 		{
-			std::array<VkImageView, 2> attachments = { m_ImageViews[i] , m_DepthImageView->GetImageView() };
+			std::array<VkImageView, 3> attachments = { m_ColorImageView->GetImageView(),  m_DepthImageView->GetImageView(), m_ImageViews[i] };
 
 			VkFramebufferCreateInfo createInfo{};
 			createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -388,12 +405,24 @@ namespace GE
 
 	void SwapChain::CreateDepthResources()
 	{
+		VkSampleCountFlagBits samples = m_Device->GetSampleCount();
 		VkFormat depthFormat = m_Device->FindDepthFormat();
 		m_DepthImage = MakeScope<Image>(m_Extent.width, m_Extent.height, ImageProperties { depthFormat,
-			VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT , 1});
+			VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT , 1, samples});
 		m_DepthImage->BindToMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		m_DepthImageView = MakeScope<ImageView>(m_DepthImage->GetImage(), ImageViewProperties{depthFormat, 1, VK_IMAGE_ASPECT_DEPTH_BIT});
 
 		m_DepthImage->TransitionImageLayout(depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
+	}
+
+	void SwapChain::CreateColorResources()
+	{
+		VkSampleCountFlagBits samples = m_Device->GetSampleCount();
+		VkFormat format = m_ImageFormat;
+
+		m_ColorImage = MakeScope<Image>(m_Extent.width, m_Extent.height, ImageProperties{format,
+			VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 1, samples});
+		m_ColorImage->BindToMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		m_ColorImageView = MakeScope<ImageView>(m_ColorImage->GetImage(), ImageViewProperties{ format, 1, VK_IMAGE_ASPECT_COLOR_BIT });
 	}
 }

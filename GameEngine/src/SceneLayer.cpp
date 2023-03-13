@@ -28,7 +28,7 @@ namespace GE
 			4, 5, 6, 6, 7, 4
 		};
 
-		m_Cube = MakeRef<Model>();
+		m_Cube = MakeRef<Model>("assets/models/cube.obj");
 		m_Plane = MakeRef<Mesh>(vertices, indices);
 		m_Cube->AddMesh(m_Plane);
 	}

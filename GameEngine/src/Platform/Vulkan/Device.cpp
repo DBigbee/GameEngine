@@ -203,6 +203,24 @@ namespace GE
 		}
 	}
 
+	VkSampleCountFlagBits Device::GetMaxUseableSampleCount()
+	{
+		VkPhysicalDeviceProperties properties;
+		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &properties);
+
+		auto counts = properties.limits.framebufferColorSampleCounts &
+			properties.limits.framebufferDepthSampleCounts;
+
+		if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
+		if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
+		if (counts & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }
+		if (counts & VK_SAMPLE_COUNT_8_BIT) { return VK_SAMPLE_COUNT_8_BIT; }
+		if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
+		if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
+
+		return VK_SAMPLE_COUNT_1_BIT;
+	}
+
 	void Device::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 	{
 		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -233,6 +251,7 @@ namespace GE
 			if (IsDeviceSuitable(device))
 			{
 				m_PhysicalDevice = device;
+				m_MSAASamples = GetMaxUseableSampleCount();
 				break;
 			}
 		}
@@ -265,6 +284,7 @@ namespace GE
 
 		VkPhysicalDeviceFeatures deviceFeatures{};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
+		deviceFeatures.sampleRateShading = VK_TRUE; //May affect performance, enable sample shading feature for the device
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

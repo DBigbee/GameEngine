@@ -25,7 +25,7 @@ namespace GE
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		imageInfo.usage = properties.m_Usage;
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		imageInfo.samples = properties.m_NumSamples;
 		imageInfo.flags = 0;
 		
 		

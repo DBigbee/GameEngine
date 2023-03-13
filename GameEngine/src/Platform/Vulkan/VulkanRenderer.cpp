@@ -69,7 +69,7 @@ namespace GE
 			BeginRenderPass(cmd);
 
 			////update uniform buffer
-			s_Data.m_UniformBufferObject.m_View = glm::lookAt(transform.m_Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			s_Data.m_UniformBufferObject.m_View = glm::lookAt(transform.m_Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 			s_Data.m_UniformBufferObject.m_Projection = camera->GetProjection();
 

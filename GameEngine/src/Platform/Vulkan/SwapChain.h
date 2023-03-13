@@ -52,6 +52,8 @@ namespace GE
 
 		void CreateDepthResources();
 
+		void CreateColorResources();
+
 		void CleanUp();
 
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
@@ -86,10 +88,14 @@ namespace GE
 
 		uint32_t m_CurrentFrame = 0;
 
-		std::shared_ptr<class SwapChain> m_OldSwapChain = nullptr;
+		Ref<class SwapChain> m_OldSwapChain = nullptr;
 
 		//Depth
-		std::unique_ptr<class Image> m_DepthImage;
-		std::unique_ptr<class ImageView> m_DepthImageView;
+		Scope<class Image> m_DepthImage;
+		Scope<class ImageView> m_DepthImageView;
+
+		//Multisample
+		Scope<class Image> m_ColorImage;
+		Scope<class ImageView> m_ColorImageView;
 	};
 }

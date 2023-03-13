@@ -10,6 +10,7 @@ namespace GE
 		VkImageTiling m_Tiling;
 		VkImageUsageFlags m_Usage;
 		uint32_t m_MipLevels = 1;
+		VkSampleCountFlagBits m_NumSamples = VK_SAMPLE_COUNT_1_BIT;
 	};
 
 	class Image

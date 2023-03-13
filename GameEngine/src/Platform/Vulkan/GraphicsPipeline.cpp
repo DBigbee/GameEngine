@@ -22,6 +22,7 @@ namespace GE
 
 	void GraphicsPipeline::CreateDefaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
 	{
+		auto device = VulkanRenderCommand::GetVulkanRenderAPI()->GetDevice();
 		configInfo.m_InputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		configInfo.m_InputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		configInfo.m_InputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
@@ -39,9 +40,9 @@ namespace GE
 		configInfo.m_RasterizerInfo.depthBiasSlopeFactor = 0.0f; //optional
 
 		configInfo.m_MultisamplingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-		configInfo.m_MultisamplingInfo.sampleShadingEnable = VK_FALSE;
-		configInfo.m_MultisamplingInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-		configInfo.m_MultisamplingInfo.minSampleShading = 1.0f; //optional
+		configInfo.m_MultisamplingInfo.sampleShadingEnable = VK_TRUE;// enable sample shading in the pipeline
+		configInfo.m_MultisamplingInfo.rasterizationSamples = device->GetSampleCount();
+		configInfo.m_MultisamplingInfo.minSampleShading = 1.0f; //optional /min fraction for sample shading; closer to one is smoother
 		configInfo.m_MultisamplingInfo.pSampleMask = nullptr; //optional
 		configInfo.m_MultisamplingInfo.alphaToCoverageEnable = VK_FALSE; //optional
 		configInfo.m_MultisamplingInfo.alphaToOneEnable = VK_FALSE; //optional

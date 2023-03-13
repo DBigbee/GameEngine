@@ -101,6 +101,10 @@ namespace GE
 
 		VkPhysicalDeviceProperties GetProperties() const { return m_Properties; }
 
+		VkSampleCountFlagBits GetSampleCount() const { return m_MSAASamples; }
+
+		VkSampleCountFlagBits GetMaxUseableSampleCount();
+
 	private:
 		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
@@ -127,6 +131,8 @@ namespace GE
 		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 
 		VkPhysicalDeviceProperties m_Properties;
+
+		VkSampleCountFlagBits m_MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
 		const std::vector<const char*> G_ValidationLayers = { "VK_LAYER_KHRONOS_validation" };
 
