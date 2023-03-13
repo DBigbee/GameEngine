@@ -97,7 +97,12 @@ namespace GE
 
 	void VulkanRenderer::DrawModel(const glm::mat4 transform, ModelComponent& src)
 	{
-		s_Data.m_UniformBufferObject.m_Model = transform;
+		FSimplePushConstantData pushData{};
+		pushData.m_Model = transform;
+
+		//s_Data.m_UniformBufferObject.m_Model = transform;
+		vkCmdPushConstants(*s_CommandBuffer, s_Data.m_RenderSystem->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT |
+			VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(FSimplePushConstantData), &pushData);
 
 		for (auto mesh : src.m_Model->GetMeshes())
 		{

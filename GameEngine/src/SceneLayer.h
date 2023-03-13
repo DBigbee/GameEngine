@@ -25,6 +25,8 @@ namespace GE
 
 		Ref<Model> m_Cube;
 
-		Ref<Mesh> m_Plane;
+		Ref<Model> m_Plane;
+
+		Ref<Mesh> m_PlaneMesh;
 	};
 }

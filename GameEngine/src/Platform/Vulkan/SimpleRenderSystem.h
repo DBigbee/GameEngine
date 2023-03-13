@@ -4,6 +4,12 @@
 
 namespace GE
 {
+	struct FSimplePushConstantData
+	{
+		glm::mat4 m_Model;
+	};
+
+
 	class SimpleRenderSystem
 	{
 	public:

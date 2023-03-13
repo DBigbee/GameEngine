@@ -13,6 +13,8 @@ namespace GE
 	public:
 		Model();
 
+		Model(const std::vector<Ref<class Mesh>>& meshes);
+
 		Model(const std::string& filePath);
 
 		const std::vector<Ref<class Mesh>>& GetMeshes() const { return m_Meshes; }

@@ -28,14 +28,14 @@ namespace GE
 			4, 5, 6, 6, 7, 4
 		};
 
+		m_PlaneMesh = MakeRef<Mesh>(vertices, indices);
+
 		m_Cube = MakeRef<Model>("assets/models/cube.obj");
-		m_Plane = MakeRef<Mesh>(vertices, indices);
-		m_Cube->AddMesh(m_Plane);
+		m_Plane = MakeRef<Model>(std::vector<Ref<Mesh>>{m_PlaneMesh});
 	}
 
 	void SceneLayer::OnAttach()
 	{
-		
 
 		m_Scene = MakeScope<Scene>();
 		auto camera = m_Scene->Create("Camera");
@@ -45,7 +45,11 @@ namespace GE
 
 		auto c = m_Scene->Create("Cube");
 		c.AddComponent<ModelComponent>(m_Cube);
-		c.GetComponent<TransformComponent>().m_Transform.m_Scale = glm::vec3(1.f);
+		c.GetComponent<TransformComponent>().m_Transform.m_Position = glm::vec3(-2.0f, 1.0f, 0.0f);
+
+		auto p = m_Scene->Create("Plane");
+		p.AddComponent<ModelComponent>(m_Plane);
+		
 	}
 
 	void SceneLayer::OnUpdate(float deltaTime)

@@ -7,6 +7,11 @@ layout(binding = 1) uniform sampler2D m_TextureSampler;
 
 layout(location = 0) out vec4 outColor;
 
+layout(push_constant) uniform Push
+{
+	mat4 m_Model;
+} push;
+
 void main()
 {
 	outColor = texture(m_TextureSampler, fragTexCoord);

@@ -9,6 +9,11 @@ namespace GE
 
 	}
 
+	Model::Model(const std::vector<Ref<class Mesh>>& meshes)
+		:m_Meshes(meshes)
+	{
+	}
+
 	Model::Model(const std::string& filePath)
 	{
 		Assimp::Importer importer;
