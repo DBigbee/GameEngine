@@ -389,11 +389,11 @@ namespace GE
 	void SwapChain::CreateDepthResources()
 	{
 		VkFormat depthFormat = m_Device->FindDepthFormat();
-		m_DepthImage = std::make_unique<Image>(m_Extent.width, m_Extent.height, depthFormat,
-			VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+		m_DepthImage = MakeScope<Image>(m_Extent.width, m_Extent.height, ImageProperties { depthFormat,
+			VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT , 1});
 		m_DepthImage->BindToMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		m_DepthImageView = std::make_unique<ImageView>(m_DepthImage->GetImage(), ImageViewProperties{depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT});
+		m_DepthImageView = MakeScope<ImageView>(m_DepthImage->GetImage(), ImageViewProperties{depthFormat, 1, VK_IMAGE_ASPECT_DEPTH_BIT});
 
-		m_DepthImage->TransitionImageLayout(depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		m_DepthImage->TransitionImageLayout(depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
 	}
 }

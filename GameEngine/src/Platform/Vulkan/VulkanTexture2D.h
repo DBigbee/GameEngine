@@ -29,7 +29,7 @@ namespace GE
 
 	private:
 
-		void Invalidate(uint8_t* data);
+		uint32_t m_MipLevels = 1;
 
 		uint32_t m_Width = 0;
 

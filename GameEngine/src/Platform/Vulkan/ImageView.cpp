@@ -25,7 +25,7 @@ namespace GE
 
 		createInfo.subresourceRange.aspectMask = properties.m_AspectFlags;
 		createInfo.subresourceRange.baseMipLevel = 0;
-		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.levelCount = properties.m_MipLevels;
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount = 1;
 

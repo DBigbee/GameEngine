@@ -4,6 +4,13 @@
 
 namespace GE
 {
+	struct ImageProperties
+	{
+		VkFormat m_Format;
+		VkImageTiling m_Tiling;
+		VkImageUsageFlags m_Usage;
+		uint32_t m_MipLevels = 1;
+	};
 
 	class Image
 	{
@@ -11,16 +18,18 @@ namespace GE
 
 		Image() = default;
 
-		Image(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
+		Image(uint32_t width, uint32_t height, const ImageProperties& properties);
 
 		virtual ~Image();
 
 
 		void BindToMemory(VkMemoryPropertyFlags properties);
 
-		void TransitionImageLayout(VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void TransitionImageLayout(VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout , uint32_t mipLevels = 1);
 
 		void CopyBufferToImage(VkBuffer buffer);
+
+		void GenerateMipMaps(VkFormat imageFormat, uint32_t mipLevels);
 
 		VkImage GetImage() const { return m_Image; }
 

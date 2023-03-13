@@ -6,6 +6,7 @@ namespace GE
 {
 	struct SamplerProperties
 	{
+		uint32_t m_MipLevels = 1;
 		VkFilter m_MagFilter = VK_FILTER_LINEAR;
 		VkFilter m_MinFilter = VK_FILTER_LINEAR;
 		VkSamplerAddressMode m_AddressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT; //tiling

@@ -7,6 +7,7 @@ namespace GE
 	struct ImageViewProperties
 	{
 		VkFormat m_Format;
+		uint32_t m_MipLevels = 1;
 		VkImageAspectFlags m_AspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
 		VkImageViewType m_ViewType = VK_IMAGE_VIEW_TYPE_2D;
 	};
