@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2018, assimp team
 
 All rights reserved.
 
@@ -52,55 +52,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assimp/StreamWriter.h> // StreamWriterLE
 
 #include <string>
-#include <utility>
 #include <vector>
 
-namespace Assimp {
 namespace FBX {
     class Node;
 }
 
-class FBX::Node {
-public:
+class FBX::Node
+{
+public: // public data members
     // TODO: accessors
     std::string name; // node name
-    std::vector<FBX::FBXExportProperty> properties; // node properties
+    std::vector<FBX::Property> properties; // node properties
     std::vector<FBX::Node> children; // child nodes
 
     // some nodes always pretend they have children...
     bool force_has_children = false;
 
 public: // constructors
-    /// The default class constructor.
     Node() = default;
-
-    /// The class constructor with the name.
-    Node(const std::string& n)
-    : name(n)
-    , force_has_children( false ) {
-        // empty
-    }
+    Node(const std::string& n) : name(n) {}
 
     // convenience template to construct with properties directly
     template <typename... More>
-    Node(const std::string& n, More&&... more)
-    : name(n)
-    , force_has_children(false) {
-        AddProperties(std::forward<More>(more)...);
-    }
+    Node(const std::string& n, const More... more)
+        : name(n)
+        { AddProperties(more...); }
 
 public: // functions to add properties or children
     // add a single property to the node
     template <typename T>
-    void AddProperty(T&& value) {
-        properties.emplace_back(std::forward<T>(value));
+    void AddProperty(T value) {
+        properties.emplace_back(value);
     }
 
     // convenience function to add multiple properties at once
     template <typename T, typename... More>
-    void AddProperties(T&& value, More&&... more) {
-        properties.emplace_back(std::forward<T>(value));
-        AddProperties(std::forward<More>(more)...);
+    void AddProperties(T value, More... more) {
+        properties.emplace_back(value);
+        AddProperties(more...);
     }
     void AddProperties() {}
 
@@ -111,11 +101,11 @@ public: // functions to add properties or children
     template <typename... More>
     void AddChild(
         const std::string& name,
-        More&&... more
+        More... more
     ) {
         FBX::Node c(name);
-        c.AddProperties(std::forward<More>(more)...);
-        children.push_back(std::move(c));
+        c.AddProperties(more...);
+        children.push_back(c);
     }
 
 public: // support specifically for dealing with Properties70 nodes
@@ -143,10 +133,10 @@ public: // support specifically for dealing with Properties70 nodes
         const std::string& type,
         const std::string& type2,
         const std::string& flags,
-        More&&... more
+        More... more
     ) {
         Node n("P");
-        n.AddProperties(name, type, type2, flags, std::forward<More>(more)...);
+        n.AddProperties(name, type, type2, flags, more...);
         AddChild(n);
     }
 
@@ -154,8 +144,9 @@ public: // member functions for writing data to a file or stream
 
     // write the full node to the given file or stream
     void Dump(
-            const std::shared_ptr<Assimp::IOStream> &outfile,
-            bool binary, int indent);
+        std::shared_ptr<Assimp::IOStream> outfile,
+        bool binary, int indent
+    );
     void Dump(Assimp::StreamWriterLE &s, bool binary, int indent);
 
     // these other functions are for writing data piece by piece.
@@ -210,8 +201,8 @@ public: // static member functions
         Assimp::StreamWriterLE& s,
         bool binary, int indent
     ) {
-        FBX::FBXExportProperty p(value);
-        FBX::Node node(name, std::move(p));
+        FBX::Property p(value);
+        FBX::Node node(name, p);
         node.Dump(s, binary, indent);
     }
 
@@ -260,7 +251,7 @@ private: // static helper functions
     );
 
 };
-}
+
 
 #endif // ASSIMP_BUILD_NO_FBX_EXPORTER
 

@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2020, assimp team
+Copyright (c) 2006-2012, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef INCLUDED_AI_FBX_DOCUMENT_UTIL_H
 #define INCLUDED_AI_FBX_DOCUMENT_UTIL_H
 
-#include <assimp/defs.h>
+#include "../include/assimp/defs.h"
 #include <string>
 #include <memory>
 #include "FBXDocument.h"
@@ -56,13 +56,15 @@ namespace Assimp {
 namespace FBX {
 namespace Util {
 
+
 /* DOM/Parse error reporting - does not return */
 AI_WONT_RETURN void DOMError(const std::string& message, const Token& token) AI_WONT_RETURN_SUFFIX;
-AI_WONT_RETURN void DOMError(const std::string &message, const Element *element = nullptr) AI_WONT_RETURN_SUFFIX;
+AI_WONT_RETURN void DOMError(const std::string& message, const Element* element = NULL) AI_WONT_RETURN_SUFFIX;
 
 // does return
 void DOMWarning(const std::string& message, const Token& token);
-void DOMWarning(const std::string &message, const Element *element = nullptr);
+void DOMWarning(const std::string& message, const Element* element = NULL);
+
 
 // fetch a property table and the corresponding property template
 std::shared_ptr<const PropertyTable> GetPropertyTable(const Document& doc,
@@ -71,26 +73,28 @@ std::shared_ptr<const PropertyTable> GetPropertyTable(const Document& doc,
     const Scope& sc,
     bool no_warn = false);
 
+
 // ------------------------------------------------------------------------------------------------
 template <typename T>
 inline const T* ProcessSimpleConnection(const Connection& con,
-        bool is_object_property_conn,
-        const char* name,
-        const Element& element,
-        const char** propNameOut = nullptr) {
+    bool is_object_property_conn,
+    const char* name,
+    const Element& element,
+    const char** propNameOut = NULL)
+{
     if (is_object_property_conn && !con.PropertyName().length()) {
         DOMWarning("expected incoming " + std::string(name) +
             " link to be an object-object connection, ignoring",
             &element
             );
-        return nullptr;
+        return NULL;
     }
     else if (!is_object_property_conn && con.PropertyName().length()) {
         DOMWarning("expected incoming " + std::string(name) +
             " link to be an object-property connection, ignoring",
             &element
             );
-        return nullptr;
+        return NULL;
     }
 
     if(is_object_property_conn && propNameOut) {
@@ -104,11 +108,12 @@ inline const T* ProcessSimpleConnection(const Connection& con,
         DOMWarning("failed to read source object for incoming " + std::string(name) +
             " link, ignoring",
             &element);
-        return nullptr;
+        return NULL;
     }
 
     return dynamic_cast<const T*>(ob);
 }
+
 
 } //!Util
 } //!FBX

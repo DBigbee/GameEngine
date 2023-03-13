@@ -28,6 +28,9 @@ project "GameEngine"
 	includedirs
 	{
 		"src",
+		"src/GameEngine",
+		"src/GameEngine/Core",
+		"src/Platform",
 		"%{IncludeDir.STBImage}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.GLM}",

@@ -50,7 +50,7 @@ project "Assimp"
       "ASSIMP_BUILD_NO_NDO_IMPORTER",
       "ASSIMP_BUILD_NO_IFC_IMPORTER",
       "ASSIMP_BUILD_NO_XGL_IMPORTER",
-      --"ASSIMP_BUILD_NO_FBX_IMPORTER",
+      "ASSIMP_BUILD_NO_FBX_IMPORTER",
       "ASSIMP_BUILD_NO_ASSBIN_IMPORTER",
       -- "ASSIMP_BUILD_NO_GLTF_IMPORTER",
       "ASSIMP_BUILD_NO_C4D_IMPORTER",
@@ -89,11 +89,6 @@ project "Assimp"
       "ASSIMP_BUILD_NO_DEBONE_PROCESS",
       "ASSIMP_BUILD_NO_EMBEDTEXTURES_PROCESS",
       "ASSIMP_BUILD_NO_GLOBALSCALE_PROCESS",
-	  
-	  "_CRT_SECURE_NO_WARNINGS",
-	  " _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS",
-
-
   }
 
   files {
@@ -137,22 +132,6 @@ project "Assimp"
       "code/ScaleProcess.cpp",
       "code/EmbedTexturesProcess.cpp",
       "contrib/irrXML/*",
-	  "code/FBXUtil.cpp",
-	  "code/FBXAnimation.cpp",
-	  "code/FBXBinaryTokenizer.cpp",
-	  "code/FBXConverter.cpp",
-	  "code/FBXDeformer.cpp",
-	  "code/FBXDocument.cpp",
-	  "code/FBXDocumentUtil.cpp",
-	  "code/FBXImporter.cpp",
-	  "code/FBXMaterial.cpp",
-	  "code/FBXMeshGeometry.cpp",
-	  "code/FBXModel.cpp",
-	  "code/FBXNodeAttribute.cpp",
-	  "code/FBXProperties.cpp",
-	  "code/FBXTokenizer.cpp",
-	  "code/FBXParser.cpp",
-	  "contrib/zlib/*"
   }
 
   includedirs {

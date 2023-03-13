@@ -10,10 +10,12 @@
 
 #include <iostream>
 #include "Core/Application.h"
+#include "SceneLayer.h"
 
 int main()
 {
-	Application app;
+	GE::Application app;
+	app.PushLayer(new GE::SceneLayer());
 
 	try {
 		app.Run();

@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2018, assimp team
+
 
 All rights reserved.
 
@@ -49,25 +50,23 @@ namespace Assimp {
 namespace FBX {
 
 /** FBX import settings, parts of which are publicly accessible via their corresponding AI_CONFIG constants */
-struct ImportSettings {
-    ImportSettings() :
-            strictMode(true),
-            readAllLayers(true),
-            readAllMaterials(false),
-            readMaterials(true),
-            readTextures(true),
-            readCameras(true),
-            readLights(true),
-            readAnimations(true),
-            readWeights(true),
-            useSkeleton(false),
-            preservePivots(true),
-            optimizeEmptyAnimationCurves(true),
-            useLegacyEmbeddedTextureNaming(false),
-            removeEmptyBones(true),
-            convertToMeters(false) {
-        // empty
-    }
+struct ImportSettings
+{
+    ImportSettings()
+        : strictMode(true)
+        , readAllLayers(true)
+        , readAllMaterials(false)
+        , readMaterials(true)
+        , readTextures(true)
+        , readCameras(true)
+        , readLights(true)
+        , readAnimations(true)
+        , readWeights(true)
+        , preservePivots(true)
+        , optimizeEmptyAnimationCurves(true)
+        , useLegacyEmbeddedTextureNaming(false)
+    {}
+
 
     /** enable strict mode:
      *   - only accept fbx 2012, 2013 files
@@ -92,6 +91,7 @@ struct ImportSettings {
      *  This bit is ignored unless readMaterials=true*/
     bool readAllMaterials;
 
+
     /** import materials (true) or skip them and assign a default
      *  material. The default value is true.*/
     bool readMaterials;
@@ -112,11 +112,6 @@ struct ImportSettings {
     /** read bones (vertex weights and deform info).
      *  Default value is true. */
     bool readWeights;
-
-    /** will convert all animation data into a skeleton (experimental)
-     *  Default value is false.
-     */
-    bool useSkeleton;
 
     /** preserve transformation pivots and offsets. Since these can
      *  not directly be represented in assimp, additional dummy
@@ -146,19 +141,13 @@ struct ImportSettings {
     bool optimizeEmptyAnimationCurves;
 
     /** use legacy naming for embedded textures eg: (*0, *1, *2)
-    */
+    **/
     bool useLegacyEmbeddedTextureNaming;
-
-    /** Empty bones shall be removed
-    */
-    bool removeEmptyBones;
-
-    /** Set to true to perform a conversion from cm to meter after the import
-    */
-    bool convertToMeters;
 };
 
-} // namespace FBX
-} // namespace Assimp
+
+} // !FBX
+} // !Assimp
 
 #endif
+

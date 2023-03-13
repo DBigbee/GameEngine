@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2018, assimp team
 
 
 All rights reserved.
@@ -53,8 +53,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include <assimp/Exceptional.h>
 #include <assimp/ByteSwapper.h>
-#include <assimp/DefaultLogger.hpp>
-#include <assimp/StringUtils.h>
 
 namespace Assimp {
 namespace FBX {
@@ -85,7 +83,7 @@ namespace FBX {
 //   e_unknown_21 = 1 << 21,
 //   e_unknown_22 = 1 << 22,
 //   e_unknown_23 = 1 << 23,
-//   e_flag_field_size_64_bit = 1 << 24, // Not sure what is
+//   e_flag_field_size_64_bit = 1 << 24, // Not sure what is 
 //   e_unknown_25 = 1 << 25,
 //   e_unknown_26 = 1 << 26,
 //   e_unknown_27 = 1 << 27,
@@ -100,7 +98,7 @@ namespace FBX {
 //	return (flags & to_check) != 0;
 //}
 // ------------------------------------------------------------------------------------------------
-Token::Token(const char* sbegin, const char* send, TokenType type, size_t offset)
+Token::Token(const char* sbegin, const char* send, TokenType type, unsigned int offset)
     :
     #ifdef DEBUG
     contents(sbegin, static_cast<size_t>(send-sbegin)),
@@ -124,18 +122,18 @@ namespace {
 
 // ------------------------------------------------------------------------------------------------
 // signal tokenization error, this is always unrecoverable. Throws DeadlyImportError.
-AI_WONT_RETURN void TokenizeError(const std::string& message, size_t offset) AI_WONT_RETURN_SUFFIX;
-AI_WONT_RETURN void TokenizeError(const std::string& message, size_t offset)
+AI_WONT_RETURN void TokenizeError(const std::string& message, unsigned int offset) AI_WONT_RETURN_SUFFIX;
+AI_WONT_RETURN void TokenizeError(const std::string& message, unsigned int offset)
 {
-    throw DeadlyImportError("FBX-Tokenize", Util::GetOffsetText(offset), message);
+    throw DeadlyImportError(Util::AddOffset("FBX-Tokenize",message,offset));
 }
 
 
 // ------------------------------------------------------------------------------------------------
-size_t Offset(const char* begin, const char* cursor) {
+uint32_t Offset(const char* begin, const char* cursor) {
     ai_assert(begin <= cursor);
 
-    return cursor - begin;
+    return static_cast<unsigned int>(cursor - begin);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -278,8 +276,8 @@ void ReadData(const char*& sbegin_out, const char*& send_out, const char* input,
     case 'f':
     case 'd':
     case 'l':
-    case 'i':
-    case 'c':   {
+    case 'i':   {
+
         const uint32_t length = ReadWord(input, cursor, end);
         const uint32_t encoding = ReadWord(input, cursor, end);
 
@@ -298,10 +296,6 @@ void ReadData(const char*& sbegin_out, const char*& send_out, const char* input,
             case 'd':
             case 'l':
                 stride = 8;
-                break;
-
-            case 'c':
-                stride = 1;
                 break;
 
             default:
@@ -375,11 +369,6 @@ bool ReadScope(TokenList& output_tokens, const char* input, const char*& cursor,
 
     // now come the individual properties
     const char* begin_cursor = cursor;
-
-    if ((begin_cursor + prop_length) > end) {
-        TokenizeError("property length out of bounds reading length ", input, cursor);
-    }
-
     for (unsigned int i = 0; i < prop_count; ++i) {
         ReadData(sbeg, send, input, cursor, begin_cursor + prop_length);
 
@@ -431,10 +420,9 @@ bool ReadScope(TokenList& output_tokens, const char* input, const char*& cursor,
 
 // ------------------------------------------------------------------------------------------------
 // TODO: Test FBX Binary files newer than the 7500 version to check if the 64 bits address behaviour is consistent
-void TokenizeBinary(TokenList& output_tokens, const char* input, size_t length)
+void TokenizeBinary(TokenList& output_tokens, const char* input, unsigned int length)
 {
-	ai_assert(input);
-	ASSIMP_LOG_DEBUG("Tokenizing binary FBX file");
+    ai_assert(input);
 
     if(length < 0x1b) {
         TokenizeError("file is too short",0);
@@ -459,23 +447,12 @@ void TokenizeBinary(TokenList& output_tokens, const char* input, size_t length)
 	/*Result ignored*/ ReadByte(input, cursor, input + length);
 	/*Result ignored*/ ReadByte(input, cursor, input + length);
 	const uint32_t version = ReadWord(input, cursor, input + length);
-	ASSIMP_LOG_DEBUG("FBX version: ", version);
 	const bool is64bits = version >= 7500;
     const char *end = input + length;
-    try
-    {
-        while (cursor < end ) {
-		    if (!ReadScope(output_tokens, input, cursor, input + length, is64bits)) {
-                break;
-            }
+    while (cursor < end ) {
+		if (!ReadScope(output_tokens, input, cursor, input + length, is64bits)) {
+            break;
         }
-    }
-    catch (const DeadlyImportError& e)
-    {
-        if (!is64bits && (length > std::numeric_limits<uint32_t>::max())) {
-            throw DeadlyImportError("The FBX file is invalid. This may be because the content is too big for this older version (", ai_to_string(version), ") of the FBX format. (", e.what(), ")");
-        }
-        throw;
     }
 }
 

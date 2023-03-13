@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2018, assimp team
 
 
 All rights reserved.
@@ -48,7 +48,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "FBXCompileConfig.h"
 #include <assimp/ai_assert.h>
-#include <assimp/defs.h>
 #include <vector>
 #include <string>
 
@@ -94,9 +93,9 @@ public:
     Token(const char* sbegin, const char* send, TokenType type, unsigned int line, unsigned int column);
 
     /** construct a binary token */
-    Token(const char* sbegin, const char* send, TokenType type, size_t offset);
+    Token(const char* sbegin, const char* send, TokenType type, unsigned int offset);
 
-    ~Token() = default;
+    ~Token();
 
 public:
     std::string StringContents() const {
@@ -119,14 +118,14 @@ public:
         return type;
     }
 
-    size_t Offset() const {
+    unsigned int Offset() const {
         ai_assert(IsBinary());
         return offset;
     }
 
     unsigned int Line() const {
         ai_assert(!IsBinary());
-        return static_cast<unsigned int>(line);
+        return line;
     }
 
     unsigned int Column() const {
@@ -148,12 +147,13 @@ private:
     const TokenType type;
 
     union {
-        size_t line;
-        size_t offset;
+        const unsigned int line;
+        unsigned int offset;
     };
     const unsigned int column;
 };
 
+// XXX should use C++11's unique_ptr - but assimp's need to keep working with 03
 typedef const Token* TokenPtr;
 typedef std::vector< TokenPtr > TokenList;
 
@@ -178,7 +178,7 @@ void Tokenize(TokenList& output_tokens, const char* input);
  * @param input_buffer Binary input buffer to be processed.
  * @param length Length of input buffer, in bytes. There is no 0-terminal.
  * @throw DeadlyImportError if something goes wrong */
-void TokenizeBinary(TokenList& output_tokens, const char* input, size_t length);
+void TokenizeBinary(TokenList& output_tokens, const char* input, unsigned int length);
 
 
 } // ! FBX

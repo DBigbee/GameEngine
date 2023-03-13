@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2018, assimp team
+
 
 All rights reserved.
 
@@ -47,7 +48,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "FBXParser.h"
 #include "FBXDocument.h"
-#include "FBXMeshGeometry.h"
 #include "FBXImporter.h"
 #include "FBXDocumentUtil.h"
 
@@ -57,16 +57,22 @@ namespace FBX {
 using namespace Util;
 
 // ------------------------------------------------------------------------------------------------
-Deformer::Deformer(uint64_t id, const Element& element, const Document& doc, const std::string& name) :
-        Object(id,element,name) {
+Deformer::Deformer(uint64_t id, const Element& element, const Document& doc, const std::string& name)
+    : Object(id,element,name)
+{
     const Scope& sc = GetRequiredScope(element);
 
     const std::string& classname = ParseTokenAsString(GetRequiredToken(element,2));
     props = GetPropertyTable(doc,"Deformer.Fbx" + classname,element,sc,true);
 }
 
+
 // ------------------------------------------------------------------------------------------------
-Deformer::~Deformer() = default;
+Deformer::~Deformer()
+{
+
+}
+
 
 // ------------------------------------------------------------------------------------------------
 Cluster::Cluster(uint64_t id, const Element& element, const Document& doc, const std::string& name)
@@ -115,7 +121,11 @@ Cluster::Cluster(uint64_t id, const Element& element, const Document& doc, const
 
 
 // ------------------------------------------------------------------------------------------------
-Cluster::~Cluster() = default;
+Cluster::~Cluster()
+{
+
+}
+
 
 // ------------------------------------------------------------------------------------------------
 Skin::Skin(uint64_t id, const Element& element, const Document& doc, const std::string& name)
@@ -144,50 +154,13 @@ Skin::Skin(uint64_t id, const Element& element, const Document& doc, const std::
 
 
 // ------------------------------------------------------------------------------------------------
-Skin::~Skin() = default;
-// ------------------------------------------------------------------------------------------------
-BlendShape::BlendShape(uint64_t id, const Element& element, const Document& doc, const std::string& name)
-    : Deformer(id, element, doc, name)
+Skin::~Skin()
 {
-    const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(), "Deformer");
-    blendShapeChannels.reserve(conns.size());
-    for (const Connection* con : conns) {
-        const BlendShapeChannel* const bspc = ProcessSimpleConnection<BlendShapeChannel>(*con, false, "BlendShapeChannel -> BlendShape", element);
-        if (bspc) {
-            blendShapeChannels.push_back(bspc);
-            continue;
-        }
-    }
+
 }
-// ------------------------------------------------------------------------------------------------
-BlendShape::~BlendShape() = default;
-// ------------------------------------------------------------------------------------------------
-BlendShapeChannel::BlendShapeChannel(uint64_t id, const Element& element, const Document& doc, const std::string& name)
-    : Deformer(id, element, doc, name)
-{
-    const Scope& sc = GetRequiredScope(element);
-    const Element* const DeformPercent = sc["DeformPercent"];
-    if (DeformPercent) {
-        percent = ParseTokenAsFloat(GetRequiredToken(*DeformPercent, 0));
-    }
-    const Element* const FullWeights = sc["FullWeights"];
-    if (FullWeights) {
-        ParseVectorDataArray(fullWeights, *FullWeights);
-    }
-    const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(), "Geometry");
-    shapeGeometries.reserve(conns.size());
-    for (const Connection* con : conns) {
-        const ShapeGeometry* const sg = ProcessSimpleConnection<ShapeGeometry>(*con, false, "Shape -> BlendShapeChannel", element);
-        if (sg) {
-            shapeGeometries.push_back(sg);
-            continue;
-        }
-    }
-}
-// ------------------------------------------------------------------------------------------------
-BlendShapeChannel::~BlendShapeChannel() = default;
-// ------------------------------------------------------------------------------------------------
+
 }
 }
+
 #endif
 
