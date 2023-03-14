@@ -53,20 +53,35 @@ project "GameEngine"
       systemversion "latest"
 	  
 	 
-	prebuildcommands{"%{wks.location}/%{prj.name}/assets/shaders/compile.bat"}
+	--prebuildcommands{"%{wks.location}%{prj.name}\\assets\\shaders\\compile.bat"}
 
 	filter "configurations:Debug"
 		defines "GE_DEBUG"
 		runtime "Debug"
 		symbols "on"
+
+		links
+		{
+			"%{Library.ShaderC_Debug}",
+		}
 		
 	filter "configurations:Release"
 		defines "GE_RELEASE"
 		runtime "Release"
 		optimize "on"
+
+		links
+		{
+			"%{Library.ShaderC_Release}",
+		}
 		
 	filter "configurations:Dist"
 		defines "GE_DIST"
 		runtime "Release"
 		optimize "on"
+
+		links
+		{
+			"%{Library.ShaderC_Release}",
+		}
 

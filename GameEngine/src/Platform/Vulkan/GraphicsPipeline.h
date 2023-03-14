@@ -24,7 +24,7 @@ namespace GE
 	{
 	public:
 
-		GraphicsPipeline(const std::string& vertFilePath, const std::string& fragFilePath, const PipelineConfigInfo& configInfo);
+		GraphicsPipeline(const std::string& shaderFilePath, const PipelineConfigInfo& configInfo);
 
 		~GraphicsPipeline();
 
@@ -34,11 +34,11 @@ namespace GE
 
 	private:
 
-		void CreateGraphicsPipeline(const std::string& vertFilePath, const std::string& fragFilePath, const PipelineConfigInfo& configInfo);
+		void CreateGraphicsPipeline(const std::string& shaderFilePath, const PipelineConfigInfo& configInfo);
 
 		VkPipeline m_GraphicsPipeline = VK_NULL_HANDLE;
 
-		Scope<class Shader> m_Shader;
+		Ref<class Shader> m_Shader;
 
 		Ref<class Device> m_Device;
 	};

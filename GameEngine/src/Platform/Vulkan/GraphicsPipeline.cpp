@@ -2,17 +2,17 @@
 #include "GraphicsPipeline.h"
 #include "Device.h"
 #include "Renderer/Vertex.h"
-#include "Shader.h"
+#include "VulkanShader.h"
 #include "VulkanRendererAPI.h"
 #include "VulkanRenderCommand.h"
 
 namespace GE
 {
 
-	GraphicsPipeline::GraphicsPipeline(const std::string& vertFilePath, const std::string& fragFilePath, const PipelineConfigInfo& configInfo)
+	GraphicsPipeline::GraphicsPipeline(const std::string& shaderFilePath, const PipelineConfigInfo& configInfo)
 	{
 		m_Device = VulkanRenderCommand::GetVulkanRenderAPI()->GetDevice();
-		CreateGraphicsPipeline(vertFilePath, fragFilePath, configInfo);
+		CreateGraphicsPipeline(shaderFilePath, configInfo);
 	}
 
 	GraphicsPipeline::~GraphicsPipeline()
@@ -93,17 +93,17 @@ namespace GE
 
 	}
 
-	void GraphicsPipeline::CreateGraphicsPipeline(const std::string& vertFilePath, const std::string& fragFilePath, const PipelineConfigInfo& configInfo)
+	void GraphicsPipeline::CreateGraphicsPipeline(const std::string& shaderFilePath, const PipelineConfigInfo& configInfo)
 	{
 		assert(configInfo.m_PipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipepline : no pipelinelayout provided in configInfo");
 		assert(configInfo.m_RenderPass != VK_NULL_HANDLE && "Cannot create graphics pipepline : no renderPass provided in configInfo");
 
-		m_Shader = MakeScope<Shader>(vertFilePath, fragFilePath);
+		m_Shader = Shader::Create(shaderFilePath);
 
 		VkPipelineShaderStageCreateInfo shaderStages[2] = {};
 		shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-		shaderStages[0].module = m_Shader->GetShaderModules()[0];
+		shaderStages[0].module = Cast_Ptr<VulkanShader>(m_Shader)->GetShaderModules()[0];
 		shaderStages[0].pName = "main";
 		shaderStages[0].flags = 0;
 		shaderStages[0].pNext = nullptr;
@@ -111,7 +111,7 @@ namespace GE
 
 		shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		shaderStages[1].module = m_Shader->GetShaderModules()[1];
+		shaderStages[1].module = Cast_Ptr<VulkanShader>(m_Shader)->GetShaderModules()[1];
 		shaderStages[1].pName = "main";
 		shaderStages[1].flags = 0;
 		shaderStages[1].pNext = nullptr;

@@ -14,3 +14,5 @@ LibraryDir["Vulkan"] = "%{VULKAN_SDK}/Lib"
 
 Library = {}
 Library["Vulkan"] = "%{LibraryDir.Vulkan}/vulkan-1.lib"
+Library["ShaderC_Debug"] = "%{LibraryDir.Vulkan}/shaderc_shared.lib"
+Library["ShaderC_Release"] = "%{LibraryDir.Vulkan}/shaderc.lib"
