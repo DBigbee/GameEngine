@@ -5,7 +5,13 @@
 
 namespace GE
 {
-	struct TagComponent
+	struct Component
+	{
+		Component() = default;
+        Component(const Component&) = default;
+	};
+
+	struct TagComponent : public Component
 	{
 		TagComponent() = default;
 		TagComponent(const std::string& name);
@@ -14,7 +20,7 @@ namespace GE
 		std::string m_Name = "Entity";
 	};
 
-	struct TransformComponent
+	struct TransformComponent : public Component
 	{
 		TransformComponent() = default;
 		TransformComponent(const Transform& transform);
@@ -23,15 +29,17 @@ namespace GE
 		Transform m_Transform;
 	};
 
-	struct CameraComponent
+	struct CameraComponent : public Component
 	{
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
 
 		PerspectiveCamera m_PerspectiveCamera;
+		
+		bool m_IsPrimary = true;
 	};
 
-	struct ModelComponent
+	struct ModelComponent : public Component
 	{
 		ModelComponent();
 		ModelComponent(const Ref<class Model>& model);
