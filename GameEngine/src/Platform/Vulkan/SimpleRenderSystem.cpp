@@ -55,7 +55,7 @@ namespace GE
 		GraphicsPipeline::CreateDefaultPipelineConfigInfo(pipelineConfigInfo);
 		pipelineConfigInfo.m_RenderPass = renderpass;
 		pipelineConfigInfo.m_PipelineLayout = m_PipelineLayout;
-		m_GraphicsPipeline = MakeScope<GraphicsPipeline>("assets/shaders/vert.spv", "assets/shaders/frag.spv", pipelineConfigInfo);
+		m_GraphicsPipeline = MakeScope<GraphicsPipeline>("assets/shaders/shader.vert.spv", "assets/shaders/shader.frag.spv", pipelineConfigInfo);
 	}
 }
 

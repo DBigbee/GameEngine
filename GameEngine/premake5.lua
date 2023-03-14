@@ -52,6 +52,9 @@ project "GameEngine"
 	filter "system:windows"
       systemversion "latest"
 	  
+	 
+	prebuildcommands{"%{wks.location}/%{prj.name}/assets/shaders/compile.bat"}
+
 	filter "configurations:Debug"
 		defines "GE_DEBUG"
 		runtime "Debug"
@@ -66,3 +69,4 @@ project "GameEngine"
 		defines "GE_DIST"
 		runtime "Release"
 		optimize "on"
+

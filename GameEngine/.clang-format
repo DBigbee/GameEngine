@@ -10,7 +10,7 @@ AccessModifierOffset: -4
 AlignAfterOpenBracket: DontAlign
 AllowShortBlocksOnASingleLine: true
 AllowShortFunctionsOnASingleLine: InlineOnly
-BasedOnStyle: Google
+BasedOnStyle: LLVM
 BraceWrapping:
   AfterClass: true    # TODO: verify
   AfterControlStatement: true    # TODO: verify

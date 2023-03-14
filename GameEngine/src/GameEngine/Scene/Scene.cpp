@@ -1,10 +1,11 @@
+#include "pch.h"
 #include "Scene.h"
 #include "Components.h"
 #include "Entity.h"
 #include "RenderSystem.h"
 #include "System.h"
 #include "Vulkan/VulkanRenderer.h"
-#include "pch.h"
+
 
 namespace GE
 {
