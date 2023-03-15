@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core.h"
-#include "TypeInfo.h"
+#include "Core/Core.h"
+#include "Core/TypeInfo.h"
 #include <unordered_map>
 #include <type_traits>
 

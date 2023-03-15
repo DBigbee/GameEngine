@@ -30,7 +30,7 @@ namespace GE
 		
 		if (vkCreateSampler(*m_Device, &samplerInfo, nullptr, &m_Sampler) != VK_SUCCESS)
 		{
-			throw std::runtime_error("failed to create texture sampler!");
+			GE_CORE_ASSERT(false, "failed to create texture sampler!");
 		}
 	}
 

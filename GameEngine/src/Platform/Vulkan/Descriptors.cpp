@@ -36,7 +36,7 @@ namespace GE
 
 	DescriptorSetLayout::Builder& DescriptorSetLayout::Builder::AddBinding(uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlags stateFlags, uint32_t count)
 	{
-		assert(m_Bindings.count(binding) == 0 && "Binding already in use!");
+		GE_CORE_ASSERT(m_Bindings.count(binding) == 0 , "Binding already in use!");
 
 		VkDescriptorSetLayoutBinding layoutBinding{};
 		layoutBinding.binding = binding;
@@ -137,11 +137,11 @@ namespace GE
 	DescriptorWriter& DescriptorWriter::WriteBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo)
 	{
 		// TODO: insert return statement here
-		assert(m_SetLayout->m_Bindings.count(binding) == 1 && "Layout does not contain specified binding!");
+		GE_CORE_ASSERT(m_SetLayout->m_Bindings.count(binding) == 1 , "Layout does not contain specified binding!");
 
 		auto& bindingDescription = m_SetLayout->m_Bindings[binding];
 
-		assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple.");
+		GE_CORE_ASSERT(bindingDescription.descriptorCount == 1, "Binding single descriptor info, but binding expects multiple.");
 
 		VkWriteDescriptorSet write{};
 		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -160,11 +160,11 @@ namespace GE
 	DescriptorWriter& DescriptorWriter::WriteImage(uint32_t binding, VkDescriptorImageInfo* imageInfo)
 	{
 		// TODO: insert return statement here
-		assert(m_SetLayout->m_Bindings.count(binding) == 1 && "Layout does not contain specified binding!");
+		GE_CORE_ASSERT(m_SetLayout->m_Bindings.count(binding) == 1 , "Layout does not contain specified binding!");
 
 		auto& bindingDescription = m_SetLayout->m_Bindings[binding];
 
-		assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple.");
+		GE_CORE_ASSERT(bindingDescription.descriptorCount == 1 , "Binding single descriptor info, but binding expects multiple.");
 
 		VkWriteDescriptorSet write{};
 		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

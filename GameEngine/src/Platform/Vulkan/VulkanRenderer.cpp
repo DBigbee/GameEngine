@@ -10,8 +10,8 @@
 #include "Renderer/Mesh.h"
 #include "SwapChain.h"
 #include "VulkanUniformBuffer.h"
-#include "Application.h"
-#include "WinWindow.h"
+#include "Core/Application.h"
+#include "Core/WinWindow.h"
 #include "Renderer/Texture.h"
 #include "VulkanTexture2D.h"
 
@@ -189,7 +189,7 @@ namespace GE
 
 	VkCommandBuffer VulkanRenderer::BeginFrame()
 	{
-		assert(!s_Data.m_IsFrameStarted && "Cant call begin frame while already in progress!");
+		GE_CORE_ASSERT(!s_Data.m_IsFrameStarted , "Cant call begin frame while already in progress!");
 
 		VkResult result = s_Data.m_SwapChain->AquireNextImage(&s_Data.m_CurrentFrameIndex);
 
@@ -215,7 +215,7 @@ namespace GE
 
 	void VulkanRenderer::EndFrame()
 	{
-		assert(s_Data.m_IsFrameStarted && "Cant call end frame while already in progress!");
+		GE_CORE_ASSERT(s_Data.m_IsFrameStarted , "Cant call end frame while already in progress!");
 
 		s_CommandBuffer->End();
 
@@ -243,8 +243,8 @@ namespace GE
 
 	void VulkanRenderer::BeginRenderPass(VkCommandBuffer commandBuffer)
 	{
-		assert(s_Data.m_IsFrameStarted && "Cant call begin swap render pass while already in progress!");
-		assert(commandBuffer == *s_CommandBuffer && "Cant begin render on a different frame!");
+		GE_CORE_ASSERT(s_Data.m_IsFrameStarted , "Cant call begin swap render pass while already in progress!");
+		GE_CORE_ASSERT(commandBuffer == *s_CommandBuffer , "Cant begin render on a different frame!");
 
 		VkRenderPassBeginInfo renderpassInfo{};
 		renderpassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -288,8 +288,8 @@ namespace GE
 
 	void VulkanRenderer::EndRenderPass(VkCommandBuffer commandBuffer)
 	{
-		assert(s_Data.m_IsFrameStarted && "Cant call end swap render pass while already in progress!");
-		assert(commandBuffer == *s_CommandBuffer && "Cant end render pass on a different frame!");
+		GE_CORE_ASSERT(s_Data.m_IsFrameStarted , "Cant call end swap render pass while already in progress!");
+		GE_CORE_ASSERT(commandBuffer == *s_CommandBuffer , "Cant end render pass on a different frame!");
 
 		vkCmdEndRenderPass(commandBuffer);
 	}

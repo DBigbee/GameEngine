@@ -1,25 +1,35 @@
 #pragma once
 
+#include "Core/PlatformDetection.h"
+
+#ifdef GE_PLATFORM_WINDOWS
+	#ifndef NOMINMAX
+		#define NOMINMAX
+	#endif
+#endif
+
 #include <iostream>
+#include <memory>
+#include <utility>
+#include <algorithm>
+#include <functional>
+
 #include <optional>
 #include <set>
 #include <limits>
-#include <algorithm>
-#include <memory>
 #include <string>
+#include <sstream>
 #include <fstream>
-#include <functional>
 #include <array>
 #include <vector>
 #include <chrono>
-#include <cassert>
+#include <unordered_map>
+#include <unordered_set>
 
-#include <stdexcept>
-
-#define NOMINMAX
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "Core/Core.h"
+#include "Core/Log.h"
+
+#ifdef GE_PLATFORM_WINDOWS
+	#include <Windows.h>
+#endif

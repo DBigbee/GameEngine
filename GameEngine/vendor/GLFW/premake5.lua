@@ -55,4 +55,4 @@ project "GLFW"
 		
 	filter "configurations:Release"
 		runtime "Release"
-		symbols "on"
+		optimize "on"

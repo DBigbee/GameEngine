@@ -31,7 +31,7 @@ namespace GE
 
 		if (vkCreateImageView(*m_Device, &createInfo, nullptr, &m_ImageView) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to create image views!");
+			GE_CORE_ASSERT(false, "Failed to create image views!");
 		}
 	}
 

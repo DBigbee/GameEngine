@@ -1,12 +1,20 @@
 #pragma once
 
-#include "Device.h"
+#include <vulkan/vulkan.h>
+#include <glm/glm.hpp>
 
 namespace GE
 {
+	struct Material
+	{
+		glm::vec3 m_DiffuseColor = glm::vec3(.5f, .5f, .5f);
+	};
+
 	struct FSimplePushConstantData
 	{
 		glm::mat4 m_Model;
+
+		Material m_Material;
 	};
 
 
@@ -31,7 +39,7 @@ namespace GE
 
 	private:
 
-		Ref<Device> m_Device;
+		Ref<class Device> m_Device;
 
 		Scope<class GraphicsPipeline> m_GraphicsPipeline;
 

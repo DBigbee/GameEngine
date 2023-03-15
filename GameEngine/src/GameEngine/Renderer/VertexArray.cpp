@@ -9,11 +9,13 @@ namespace GE
 	{
 		switch (RendererAPI::GetAPI())
 		{
-		case RendererAPI::API::None: assert(false && "None is not supported"); return nullptr;
+		case RendererAPI::API::None:
+			GE_CORE_ASSERT(false , "None is not supported");
+			return nullptr;
 		case RendererAPI::API::Vulkan: return MakeRef<VulkanVertexArray>();
 		}
 
-		assert(false && "Unknown API");
+		GE_CORE_ASSERT(false , "Unknown API");
 		return nullptr;
 	}
 }

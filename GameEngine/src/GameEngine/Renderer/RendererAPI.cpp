@@ -10,11 +10,13 @@ namespace GE
 	{
 		switch (s_API)
 		{
-		case RendererAPI::API::None: assert(false && "None is not supported"); return nullptr;
+		case RendererAPI::API::None:
+			GE_CORE_ASSERT(false , "None is not supported");
+			return nullptr;
 		case RendererAPI::API::Vulkan: return MakeRef<VulkanRendererAPI>();
 		}
 
-		assert(false && "Unknown API");
+		GE_CORE_ASSERT(false , "Unknown API");
 		return nullptr;
 	}
 }

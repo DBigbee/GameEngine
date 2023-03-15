@@ -95,8 +95,8 @@ namespace GE
 
 	void GraphicsPipeline::CreateGraphicsPipeline(const std::string& shaderFilePath, const PipelineConfigInfo& configInfo)
 	{
-		assert(configInfo.m_PipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipepline : no pipelinelayout provided in configInfo");
-		assert(configInfo.m_RenderPass != VK_NULL_HANDLE && "Cannot create graphics pipepline : no renderPass provided in configInfo");
+		GE_CORE_ASSERT(configInfo.m_PipelineLayout != VK_NULL_HANDLE ,"Cannot create graphics pipepline : no pipelinelayout provided in configInfo");
+		GE_CORE_ASSERT(configInfo.m_RenderPass != VK_NULL_HANDLE , "Cannot create graphics pipepline : no renderPass provided in configInfo");
 
 		m_Shader = Shader::Create(shaderFilePath);
 
@@ -160,7 +160,7 @@ namespace GE
 	
 		if (vkCreateGraphicsPipelines(*m_Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to create graphics pipeline!");
+			GE_CORE_ASSERT(false, "Failed to create graphics pipeline!");
 		}
 
 

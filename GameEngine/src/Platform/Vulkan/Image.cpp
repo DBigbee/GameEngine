@@ -31,7 +31,7 @@ namespace GE
 		
 		if (vkCreateImage(*m_Device, &imageInfo, nullptr, &m_Image) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to create image!");
+			GE_CORE_ASSERT(false, "Failed to create image!");
 		}
 	}
 
@@ -112,7 +112,7 @@ namespace GE
 		}
 		else
 		{
-			throw std::invalid_argument("unsupported layout transition!");
+			GE_CORE_ASSERT(false, "unsupported layout transition!");
 		}
 
 
@@ -154,7 +154,7 @@ namespace GE
 
 		if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
 		{
-			throw std::runtime_error("texture image does not support linear blitting!");
+			GE_CORE_ASSERT(false, "texture image does not support linear blitting!");
 		}
 
 		CommandBuffer commandBuffer = CommandBuffer(1, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);

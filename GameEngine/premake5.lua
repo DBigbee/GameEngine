@@ -1,8 +1,8 @@
 project "GameEngine"
-	kind "ConsoleApp"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "on"
+	staticruntime "off"
 	
 	targetdir("bin/" .. outputdir .. "/%{prj.name}")
 	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -14,7 +14,8 @@ project "GameEngine"
 	{
 		"src/**.h",
 		"src/**.cpp",
-		
+		"vendor/stb_image/**.h",
+		"vendor/stb_image/**.cpp",
 		"vendor/glm/glm/**.hpp",
 		"vendor/glm/glm/**.inl",
 	}
@@ -22,15 +23,15 @@ project "GameEngine"
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"GLFW_INCLUDE_VULKUN"
+		"GLFW_INCLUDE_NONE"
 	}
 	
 	includedirs
 	{
 		"src",
 		"src/GameEngine",
-		"src/GameEngine/Core",
 		"src/Platform",
+		"%{IncludeDir.SPDLOG}",
 		"%{IncludeDir.STBImage}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.GLM}",
@@ -52,7 +53,13 @@ project "GameEngine"
 	filter "system:windows"
       systemversion "latest"
 	  
-	 
+	--links
+	--{
+	--	"%{Library.WinSock}",
+	--	"%{Library.WinMM}",
+	--	"%{Library.WinVersion}",
+	--	"%{Library.BCrypt}",
+	--}
 	--prebuildcommands{"%{wks.location}%{prj.name}\\assets\\shaders\\compile.bat"}
 
 	filter "configurations:Debug"

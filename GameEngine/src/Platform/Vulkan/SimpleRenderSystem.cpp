@@ -43,13 +43,13 @@ namespace GE
 	
 		if (vkCreatePipelineLayout(*m_Device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to create pipeline layout!");
+			GE_CORE_ASSERT(false, "Failed to create pipeline layout!");
 		}
 	}
 
 	void SimpleRenderSystem::CreatePipeline(VkRenderPass renderpass)
 	{
-		assert(m_PipelineLayout != nullptr && "Cannot create pipeline before pipeline layout!");
+		GE_CORE_ASSERT(m_PipelineLayout != nullptr , "Cannot create pipeline before pipeline layout!");
 
 		PipelineConfigInfo pipelineConfigInfo{};
 		GraphicsPipeline::CreateDefaultPipelineConfigInfo(pipelineConfigInfo);

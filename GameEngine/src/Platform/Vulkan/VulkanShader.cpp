@@ -17,7 +17,7 @@ namespace GE
 			if (type == "fragment" || type == "pixel")
 				return ShaderStage::Fragment;
 
-			assert(false && "Unknown shader type!");
+			GE_CORE_ASSERT(false , "Unknown shader type!");
 			return ShaderStage(0);
 		}
 
@@ -33,7 +33,7 @@ namespace GE
 				break;
 			}
 
-			assert(false);
+			GE_CORE_ASSERT(false);
 
 			return shaderc_shader_kind(0);
 		}
@@ -50,13 +50,22 @@ namespace GE
 				break;
 			}
 
-			assert(false);
+			GE_CORE_ASSERT(false);
 			return "";
 		}
 
 		const char* GetCacheDirectory()
 		{
-			return "assets/shaders";
+			return "assets/cache/shaders";
+		}
+
+		static void CreateCacheDirectoryIfNeeded()
+		{
+			std::string cacheDirectory = GetCacheDirectory();
+			if (!std::filesystem::exists(cacheDirectory))
+			{
+				std::filesystem::create_directories(cacheDirectory);
+			}
 		}
 	}
 
@@ -64,6 +73,8 @@ namespace GE
 		: m_FilePath(filename)
 	{
 		m_Device = VulkanRenderCommand::GetVulkanRenderAPI()->GetDevice();
+
+		Utils::CreateCacheDirectoryIfNeeded();
 
 		auto source = ReadFile(filename);
 		auto shaderSources = PreProcess(source);
@@ -143,7 +154,7 @@ namespace GE
 				shaderc::SpvCompilationResult module = complier.CompileGlslToSpv(source, Utils::ConvertShaderStageToShadercKind(stage), m_FilePath.c_str(), options);
 				if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 				{
-					throw std::runtime_error(module.GetErrorMessage());
+					GE_CORE_ASSERT(false , module.GetErrorMessage().c_str());
 				}
 
 				shaderStages[stage] = std::vector<uint32_t>(module.begin(), module.end());
@@ -181,14 +192,14 @@ namespace GE
 		while (pos != std::string::npos)
 		{
 			size_t eol = source.find_first_of("\r\n", pos);
-			assert(eol != std::string::npos && "Syntax Error");
+			GE_CORE_ASSERT(eol != std::string::npos , "Syntax Error");
 
 			size_t begin = pos + typeTokenLength + 1;
 			std::string type = source.substr(begin, eol - begin);
-			assert((uint8_t)Utils::GetShaderTypeFromString(type) && "Invalid shader type specified");
+			GE_CORE_ASSERT((uint8_t)Utils::GetShaderTypeFromString(type) , "Invalid shader type specified");
 
 			size_t nextLinePos = source.find_first_not_of("\r\n", eol);
-			assert(nextLinePos != std::string::npos && "Syntax Error");
+			GE_CORE_ASSERT(nextLinePos != std::string::npos , "Syntax Error");
 			pos = source.find(typeToken, nextLinePos);
 
 			shaderSources[Utils::GetShaderTypeFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);

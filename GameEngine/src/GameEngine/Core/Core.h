@@ -1,6 +1,22 @@
 #pragma once
 
+#include "PlatformDetection.h"
+
 #include <memory>
+
+#ifdef GE_DEBUG
+	#ifdef GE_PLATFORM_WINDOWS
+		#define GE_DEBUGBREAK() __debugbreak()
+	#else
+		#error "Platform doesnt support debugbreak yet!"
+	#endif
+		#define GE_ENABLE_ASSERTS
+#else
+	#define GE_DEBUGBREAK()
+#endif
+
+#define GE_STRINGIFY_MACRO(x) #x
+#define GE_EXPAND_MACRO(x) x
 
 #define BIND_FUNCTION(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...);}
 
@@ -37,3 +53,6 @@ namespace GE
 		return std::dynamic_pointer_cast<To>(from);
 	};
 }
+
+#include "Log.h"
+#include "Assert.h"

@@ -42,7 +42,7 @@ namespace GE
 
 	VkResult VulkanBuffer::Map(VkDeviceSize size, VkDeviceSize offset)
 	{
-		assert(m_Buffer && m_BufferMemory && "Called map on buffer before create!");
+		GE_CORE_ASSERT(m_Buffer && m_BufferMemory , "Called map on buffer before create!");
 
 
 		return vkMapMemory(*m_Device, m_BufferMemory, offset, size, 0, &m_MappedBuffers);

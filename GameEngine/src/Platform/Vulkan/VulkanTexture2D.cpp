@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "VulkanTexture2D.h"
-#include "ImageLoader/StbImage.h"
+#include "stb_image/stb_image.h"
 #include "Device.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "CommandBuffer.h"

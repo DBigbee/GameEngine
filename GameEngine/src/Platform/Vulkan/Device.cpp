@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "Device.h"
-#include "Application.h"
-#include "WinWindow.h"
+#include "Core/Application.h"
+#include "Core/WinWindow.h"
+
 
 
 namespace GE
@@ -66,7 +67,7 @@ namespace GE
 	{
 		if (enableValidationLayers && !CheckValidationLayerSupport())
 		{
-			throw std::runtime_error("Validation layers requested, but not avialable!");
+			GE_CORE_ASSERT(false, "Validation layers requested, but not avialable!");
 		}
 
 		VkApplicationInfo appInfo{};
@@ -105,7 +106,7 @@ namespace GE
 		VkResult result = vkCreateInstance(&createInfo, nullptr, &m_VKInstance);
 		if (result != VK_SUCCESS)
 		{
-			throw std::runtime_error("failed to create vk instance!");
+			GE_CORE_ASSERT(false, "failed to create vk instance!");
 		}
 
 		CheckVKExtensions();

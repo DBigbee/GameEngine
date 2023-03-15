@@ -2,7 +2,7 @@ include "Dependencies.lua"
 
 workspace "GameEngine"
 	architecture "x86_64"
-	startproject "GameEngine"
+	startproject "GameProject"
 	
 	configurations
 	{
@@ -23,4 +23,8 @@ workspace "GameEngine"
 		include "GameEngine/vendor/Assimp"
 	group ""
 	
-	include "GameEngine"
+	group "Core"
+		include "GameEngine"
+	group ""
+	
+	include "GameProject"

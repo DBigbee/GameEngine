@@ -2,6 +2,7 @@
 
 #include "VertexArray.h"
 
+
 namespace GE
 {
 	class RendererAPI
